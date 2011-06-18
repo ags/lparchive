@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LPArchive</string>
+    <string name="fetching_wait">Fetching, please wait...</string>
+    <string name="latest_tab">Latest</string>
+    <string name="archive_tab">Archive</string>
+    <string name="donate_tab"></string>
+    <string name="empty_list">No entries found.</string>
+    <string name="base_url">http://lparchive.org/</string>
+</resources>
