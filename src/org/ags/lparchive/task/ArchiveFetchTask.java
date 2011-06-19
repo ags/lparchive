@@ -10,11 +10,15 @@ import net.htmlparser.jericho.Source;
 import org.ags.lparchive.LPArchiveActivity;
 import org.ags.lparchive.LPArchiveApplication;
 import org.ags.lparchive.R;
+import org.ags.lparchive.list.ArchiveListActivity;
+import org.ags.lparchive.list.LatestListActivity;
 import org.ags.lparchive.model.LetsPlay;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
+import android.widget.TabHost;
 
 public class ArchiveFetchTask extends ProgressTask {
 	private static final String LATEST_DIV = "latest";
@@ -36,7 +40,7 @@ public class ArchiveFetchTask extends ProgressTask {
 				lp = new LetsPlay(li);
 
 				if (!lp.getUrl().equals("")) {
-					Log.d("LPA", lp.toString());
+//					Log.d("LPA", lp.toString());
 					appState.getDataHelper().insertLetsPlay(lp);
 				}
 			}
@@ -63,7 +67,20 @@ public class ArchiveFetchTask extends ProgressTask {
 	protected void onPostExecute(String result) {
 		super.onPostExecute(result);
 		Log.d("LPA", "setting current tab");
-		((LPArchiveActivity) activity).getTabHost().setCurrentTab(1);
+		TabHost tabHost = ((LPArchiveActivity) activity).getTabHost();
+		TabHost.TabSpec spec;
+		Intent intent;
+
+		intent = new Intent().setClass(activity, LatestListActivity.class);
+		spec = tabHost.newTabSpec("latest").setIndicator(
+				activity.getString(R.string.latest_tab)).setContent(intent);
+		tabHost.addTab(spec);
+
+		intent = new Intent().setClass(activity, ArchiveListActivity.class);
+		spec = tabHost.newTabSpec("archive").setIndicator(
+				activity.getString(R.string.archive_tab)).setContent(intent);
+		tabHost.addTab(spec);
+		tabHost.setCurrentTab(0);
 	}
 
 }

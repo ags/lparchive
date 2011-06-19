@@ -34,7 +34,7 @@ public class DataHelper {
 			+ "(game, author, url, type) values (?, ?, ?, ?)";
 
 	private SQLiteStatement latestLpStmnt;
-	private static final String LATEST_LP = "insert into " + ARCHIVE_TABLE
+	private static final String LATEST_LP = "insert into " + LATEST_TABLE
 			+ "(lp_id) values (?)";
 
 	private SQLiteQueryBuilder recent_join;
@@ -73,7 +73,9 @@ public class DataHelper {
 						lp.getAuthor() }, null, null, null);
 		if (cursor.moveToFirst()) {
 			do {
+//				Log.d("LPA", String.valueOf(cursor.getInt(0)));
 				this.latestLpStmnt.bindLong(1, cursor.getInt(0));
+				this.latestLpStmnt.executeInsert();
 			} while (cursor.moveToNext());
 		}
 		if (cursor != null && !cursor.isClosed()) {

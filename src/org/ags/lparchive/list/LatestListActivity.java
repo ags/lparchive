@@ -11,6 +11,7 @@ import org.ags.lparchive.task.ProgressTask;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -19,9 +20,7 @@ public class LatestListActivity extends LPListActivity {
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-//		LPListFetchTask initTask = new LatestFetchTask(this,
-//				getString(R.string.base_url), R.layout.list_item_game);
-//		initTask.execute(this);
+		Log.w("LPA", "creating LLA");
 		new LatestSelectTask(this, "get from db").execute();
 	}
 
@@ -54,6 +53,7 @@ public class LatestListActivity extends LPListActivity {
 		protected String doInBackground(Context... params) {
 			LPArchiveApplication appState = ((LPArchiveApplication) activity
 					.getApplicationContext());
+			Log.d("LPA", "begin recent fetch");
 			lps = appState.getDataHelper().getRecentLetsPlay();
 			return "done";
 		}

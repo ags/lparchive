@@ -10,8 +10,8 @@ import org.ags.lparchive.task.ProgressTask;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -20,22 +20,18 @@ public class ArchiveListActivity extends LPListActivity {
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		// LPListFetchTask initTask = new ArchiveFetchTask(this,
-		// getString(R.string.base_url), R.layout.list_item_game);
-		// initTask.execute(this);
-
 		new ArchiveSelectTask(this, "get from db").execute();
 	}
-
+		
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
-		LetsPlay lp = ((LPAdapter) l.getAdapter()).getItem(position);
-		if (lp != null) {
-			Intent i = new Intent(this, ChapterListActivity.class);
-			i.putExtra("lp", lp);
-			startActivity(i);
-		}
+//		LetsPlay lp = ((LPAdapter) l.getAdapter()).getItem(position);
+//		if (lp != null) {
+//			Intent i = new Intent(this, ChapterListActivity.class);
+//			i.putExtra("lp", lp);
+//			startActivity(i);
+//		}
 	}
 
 	class ArchiveSelectTask extends ProgressTask {
@@ -56,6 +52,7 @@ public class ArchiveListActivity extends LPListActivity {
 		protected String doInBackground(Context... params) {
 			LPArchiveApplication appState = ((LPArchiveApplication) activity
 					.getApplicationContext());
+			Log.d("LPA", "begin archive fetch");
 			lps = appState.getDataHelper().getArchive();
 			return "done";
 		}
