@@ -2,12 +2,14 @@ package org.ags.lparchive;
 
 import java.util.List;
 
+import org.ags.lparchive.model.LetsPlay;
+
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class LPAdapter extends ArrayAdapter<LetsPlay> {
@@ -31,15 +33,18 @@ public class LPAdapter extends ArrayAdapter<LetsPlay> {
 		}
 
 		LetsPlay lp = lps.get(position);
-		Log.d("lpa", lp.toString());
+//		Log.d("lpa", lp.toString());
 		if (lp != null) {
 			TextView game = (TextView) v.findViewById(R.id.game);
 			TextView author = (TextView) v.findViewById(R.id.author);
-
+			ImageView icon = (ImageView) v.findViewById(R.id.icon);
+			
+			if(icon != null) {
+				icon.setImageResource(lp.getIconResource());
+			}
 			if (game != null) {
 				game.setText(lp.getGame());
 			}
-
 			if (author != null) {
 				author.setText("by " + lp.getAuthor());
 			}

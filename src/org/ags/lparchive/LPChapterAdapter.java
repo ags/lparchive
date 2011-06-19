@@ -2,6 +2,8 @@ package org.ags.lparchive;
 
 import java.util.List;
 
+import org.ags.lparchive.model.UpdateLink;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;

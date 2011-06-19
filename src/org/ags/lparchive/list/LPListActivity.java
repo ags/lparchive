@@ -11,4 +11,5 @@ public class LPListActivity extends ListActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.lp_list);
 	}
+
 }

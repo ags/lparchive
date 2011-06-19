@@ -8,43 +8,58 @@ import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.Source;
 
 import org.ags.lparchive.LPChapterAdapter;
-import org.ags.lparchive.LetsPlay;
+import org.ags.lparchive.LPPageActivity;
 import org.ags.lparchive.R;
-import org.ags.lparchive.UpdateLink;
-import org.ags.lparchive.fetch.LPFetchTask;
+import org.ags.lparchive.model.LetsPlay;
+import org.ags.lparchive.model.UpdateLink;
+import org.ags.lparchive.task.ProgressTask;
 
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.ListView;
 
 public class ChapterListActivity extends LPListActivity {
 	private LetsPlay lp;
-
+	private String chapters_url;
+	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Bundle extras = getIntent().getExtras();
 		this.lp = (LetsPlay) extras.getSerializable("lp");
-		String url = getString(R.string.base_url) + lp.getUrl();
-		LPFetchTask initTask = new ChapterFetchTask(this, url,
-				R.layout.list_item_update);
+		chapters_url = getString(R.string.base_url) + lp.getUrl();
+		ProgressTask initTask = new ChapterFetchTask(this);
 		initTask.execute(this);
 	}
-
-	class ChapterFetchTask extends LPFetchTask {
+	
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+		UpdateLink update = ((LPChapterAdapter)l.getAdapter()).getItem(position);
+		if(update != null) {
+			Intent i = new Intent(ChapterListActivity.this, LPPageActivity.class);
+			i.putExtra("update_url", chapters_url + update.getHref());
+			startActivity(i);
+		}
+	}
+	
+	class ChapterFetchTask extends ProgressTask {
 		private static final String CONTENT_ELEMENT = "content";
 		private static final String LINK_PREFIX = "Update%20";
 
-		public ChapterFetchTask(LPListActivity activity, String url,
-				int textViewResourceId) {
-			super(activity, activity.getString(R.string.fetching_wait), url,
-					textViewResourceId);
+		public ChapterFetchTask(LPListActivity activity) {
+			super(activity, activity.getString(R.string.fetching_wait));
 
 		}
 
 		@Override
 		protected String doInBackground(Context... params) {
 			try {
-				Source source = new Source(new URL(super.url));
+//				Log.d("lpa", super.url);
+				Source source = new Source(new URL(chapters_url));
 				Element e = source.getElementById(CONTENT_ELEMENT);
 				// get all links. after the ones matching "Update%20[N]/"
 				List<Element> links = e.getAllElements(HTMLElementName.A);
@@ -65,9 +80,9 @@ public class ChapterListActivity extends LPListActivity {
 
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
-			LPChapterAdapter adapter = new LPChapterAdapter(activity,
-					textViewResourceId, lp.getUpdateUrls());
-			((ListActivity) activity).setListAdapter(adapter);
+//			LPChapterAdapter adapter = new LPChapterAdapter(activity,
+//					textViewResourceId, lp.getUpdateUrls());
+//			((ListActivity) activity).setListAdapter(adapter);
 		}
 	}
 }
