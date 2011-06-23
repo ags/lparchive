@@ -29,21 +29,30 @@ public class ArchiveFetchTask extends ProgressTask {
 		
 	@Override
 	protected String doInBackground(Context... params) {
+		LPArchiveApplication appState = ((LPArchiveApplication) activity
+				.getApplicationContext());
+//		boolean update = false;
+		if(!appState.getFirstRun()) {
+			Log.d("LPA", "already fetched!");
+			return "done";
+		}
 		try {
+			Log.d("LPA", "getting source");
 			Source source = new Source(new URL(activity
 					.getString(R.string.base_url)));
+			Log.d("LPA", "got source");
 			List<Element> lis = source.getAllElements(HTMLElementName.TR);
-			LPArchiveApplication appState = ((LPArchiveApplication) activity
-					.getApplicationContext());
 			LetsPlay lp;
+			Log.d("LPA", "element iter");
 			for (Element li : lis) {
 				lp = new LetsPlay(li);
 
-				if (!lp.getUrl().equals("")) {
+				if (!lp.getUrl().equals("") && !lp.getUrl().equals("/random")) {
 //					Log.d("LPA", lp.toString());
 					appState.getDataHelper().insertLetsPlay(lp);
 				}
 			}
+			Log.d("LPA", "element iter done");
 			Element latest = source.getElementById(LATEST_DIV);
 			if (latest != null) {
 				lis = latest.getAllElements(HTMLElementName.LI);
@@ -56,6 +65,7 @@ public class ArchiveFetchTask extends ProgressTask {
 				}
 
 			}
+			appState.setRunned();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

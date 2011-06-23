@@ -1,46 +1,35 @@
 package org.ags.lparchive;
 
-import java.util.List;
-
-import org.ags.lparchive.model.UpdateLink;
-
 import android.content.Context;
+import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.CursorAdapter;
 import android.widget.TextView;
 
-public class LPChapterAdapter extends ArrayAdapter<UpdateLink> {
+public class LPChapterAdapter extends CursorAdapter {
+	private Context context;
 
-	private List<UpdateLink> links;
-	private int textViewResourceId;
-
-	public LPChapterAdapter(Context context, int textViewResourceId,
-			List<UpdateLink> links) {
-		super(context, textViewResourceId, links);
-		this.links = links;
-		this.textViewResourceId = textViewResourceId;
+	public LPChapterAdapter(Context context, Cursor cursor) {
+		super(context, cursor);
+		this.context = context;
 	}
 
-	public View getView(int position, View convertView, ViewGroup parent) {
-		View v = convertView;
-		if (v == null) {
-			LayoutInflater vi = (LayoutInflater) parent.getContext()
-					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			v = vi.inflate(textViewResourceId, null);
-		}
-		
-		UpdateLink link = links.get(position);
-		if (link != null) {
-			TextView title = (TextView) v.findViewById(R.id.update_title);
-
-			if (title != null) {
-				title.setText(link.getTitle());
-			}
-		}
-		
+	@Override
+	public View newView(Context context, Cursor cursor, ViewGroup parent) {
+		LayoutInflater inflater = (LayoutInflater) context.getSystemService(
+				Context.LAYOUT_INFLATER_SERVICE);
+		View v = inflater.inflate(R.layout.list_item_update, null);
 		return v;
+	}
+
+	@Override
+	public void bindView(View view, Context context, Cursor cursor) {
+		String title = cursor.getString(cursor.getColumnIndex(
+				DataHelper.KEY_CHAPTER_TITLE));
+		TextView tTitle = (TextView) view.findViewById(R.id.update_title);
+		tTitle.setText(title);
 	}
 
 }

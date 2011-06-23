@@ -26,6 +26,7 @@ public class LPPageActivity extends Activity {
 		webview.getSettings().setUseWideViewPort(true);
 
 		// get the content of the relevant LP, either from web or TODO db
+		// TODO images should be stored on the sd card and refered to by uri
 		Bundle extras = getIntent().getExtras();
 		update_url = extras.getString("update_url");
 		ProgressTask initTask = new ChapterFetchTask(this, update_url);
