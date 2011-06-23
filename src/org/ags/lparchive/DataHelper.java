@@ -1,5 +1,6 @@
 package org.ags.lparchive;
 
+import org.ags.lparchive.model.Chapter;
 import org.ags.lparchive.model.LetsPlay;
 
 import android.content.Context;
@@ -33,12 +34,12 @@ public class DataHelper {
 	public static String KEY_CHAPTER_TITLE = "title";
 	
 	private static String SORT_GAME_ASC = "game asc";
-	private static String SORT_URL_ASC = "url asc";
+//	private static String SORT_URL_ASC = "url asc";
 	
 	private static final String[] projectArchive = new String[] { KEY_ID, 
 		KEY_GAME, KEY_AUTHOR, KEY_URL, KEY_TYPE };
 	private static final String[] projectChapter = new String[] { KEY_ID, 
-		KEY_CHAPTER_LP_ID,  KEY_CHAPTER_URL, KEY_CHAPTER_TITLE };
+		KEY_CHAPTER_LP_ID, KEY_CHAPTER_URL, KEY_CHAPTER_TITLE };
 	
 	private Context context;
 	private SQLiteDatabase db;
@@ -79,25 +80,21 @@ public class DataHelper {
 	public SQLiteDatabase getDb() {
 		return this.db;
 	}
-
-	public long insertLetsPlay(LetsPlay lp) {
-		this.insertLpStmnt.bindString(1, lp.getGame());
-		this.insertLpStmnt.bindString(2, lp.getAuthor());
-		this.insertLpStmnt.bindString(3, lp.getUrl());
-		this.insertLpStmnt.bindString(4, lp.getType());
-		long ret = this.insertLpStmnt.executeInsert();
-		for(String tag : lp.getTags())
-			addTag(lp, tag);
-		return ret;
+	
+	public long insertLetsPlay(String game, String author, String url, String type) {
+		this.insertLpStmnt.bindString(1, game);
+		this.insertLpStmnt.bindString(2, author);
+		this.insertLpStmnt.bindString(3, url);
+		this.insertLpStmnt.bindString(4, type);
+		return this.insertLpStmnt.executeInsert();
 	}
-
-	public void markRecentLetsPlay(LetsPlay lp) {
+		
+	public void markRecentLetsPlay(String game, String author) {
 		Cursor cursor = this.db.query(ARCHIVE_TABLE, new String[] { KEY_ID },
-				"game=? AND author=?", new String[] { lp.getGame(),
-						lp.getAuthor() }, null, null, null);
+				"game=? AND author=?", new String[] { game, author }, 
+				null, null, null);
 		if (cursor.moveToFirst()) {
 			do {
-//				Log.d("LPA", String.valueOf(cursor.getInt(0)));
 				this.latestLpStmnt.bindLong(1, cursor.getInt(0));
 				this.latestLpStmnt.executeInsert();
 			} while (cursor.moveToNext());
@@ -106,21 +103,11 @@ public class DataHelper {
 			cursor.close();
 		}
 	}
-
-	public void addTag(LetsPlay lp, String tag) {
-		Cursor cursor = this.db.query(ARCHIVE_TABLE, new String[] { KEY_ID },
-				"game=? AND author=?", new String[] { lp.getGame(),
-						lp.getAuthor() }, null, null, null);
-		if (cursor.moveToFirst()) {
-			do {
-				this.insertTagStmnt.bindLong(1, cursor.getInt(0));
-				this.insertTagStmnt.bindString(2, tag);
-				this.insertTagStmnt.executeInsert();
-			} while (cursor.moveToNext());
-		}
-		if (cursor != null && !cursor.isClosed()) {
-			cursor.close();
-		}
+	
+	public void addTag(long lp_id, String tag) {
+		this.insertTagStmnt.bindLong(1, lp_id);
+		this.insertTagStmnt.bindString(2, tag);
+		this.insertTagStmnt.executeInsert();
 	}
 	
 	public Cursor getRecentLetsPlay() {
@@ -150,13 +137,12 @@ public class DataHelper {
 		return this.insertChapterStmnt.executeInsert();
 	}
 
-	public LetsPlay getLP(long lpId) {
+	public LetsPlay getLP(long id) {
 		Cursor cursor = this.db.query(ARCHIVE_TABLE, projectArchive, "_id=?", 
-				new String[] { String.valueOf(lpId)}, null, null, null);
+				new String[] { String.valueOf(id)}, null, null, null);
 		LetsPlay lp = null;
 		if (cursor.moveToFirst()) {
 			do {
-				Log.d("LPA", "getLP cursing");
 				lp = new LetsPlay(cursor.getInt(0), cursor
 						.getString(1), cursor.getString(2),
 						cursor.getString(3), cursor.getString(4));
@@ -167,22 +153,21 @@ public class DataHelper {
 		}
 		return lp;
 	}
-	
-//	private List<LetsPlay> letsPlayList(Cursor cursor) {
-//		List<LetsPlay> list = new ArrayList<LetsPlay>();
-//		if (cursor.moveToFirst()) {
-//			do {
-//				LetsPlay lp = new LetsPlay(cursor.getInt(0), cursor
-//						.getString(1), cursor.getString(2),
-//						cursor.getString(3), cursor.getString(4));
-//				list.add(lp);
-//			} while (cursor.moveToNext());
-//		}
-//		if (cursor != null && !cursor.isClosed()) {
-//			cursor.close();
-//		}
-//		return list;
-//	}
+
+	public Chapter getChapter(long id) {
+		Cursor cursor = this.db.query(CHAPTERS_TABLE, projectChapter, "_id=?", 
+				new String[] { String.valueOf(id)}, null, null, null);
+		Chapter c = null;
+		if (cursor.moveToFirst()) {
+			do {
+				c = new Chapter(cursor.getString(2), cursor.getString(3));
+			} while (cursor.moveToNext());
+		}
+		if (cursor != null && !cursor.isClosed()) {
+			cursor.close();
+		}
+		return c;
+	}
 
 	private static class OpenHelper extends SQLiteOpenHelper {
 
@@ -214,6 +199,5 @@ public class DataHelper {
 			onCreate(db);
 		}
 	}
-
 
 }

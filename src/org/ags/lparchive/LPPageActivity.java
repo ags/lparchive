@@ -1,11 +1,9 @@
 package org.ags.lparchive;
 
-import java.net.URL;
-
-import net.htmlparser.jericho.Element;
-import net.htmlparser.jericho.Source;
-
 import org.ags.lparchive.task.ProgressTask;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import android.app.Activity;
 import android.content.Context;
@@ -15,7 +13,7 @@ import android.webkit.WebView;
 
 public class LPPageActivity extends Activity {
 	private WebView webview;
-	private String update_url;
+	private String chapter_url;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -28,8 +26,9 @@ public class LPPageActivity extends Activity {
 		// get the content of the relevant LP, either from web or TODO db
 		// TODO images should be stored on the sd card and refered to by uri
 		Bundle extras = getIntent().getExtras();
-		update_url = extras.getString("update_url");
-		ProgressTask initTask = new ChapterFetchTask(this, update_url);
+		chapter_url = extras.getString("chapter_url");
+		Log.d("LPA", "page: " + chapter_url);
+		ProgressTask initTask = new ChapterFetchTask(this, chapter_url);
 		initTask.execute(this);
 	}
 
@@ -44,8 +43,9 @@ public class LPPageActivity extends Activity {
 		@Override
 		protected String doInBackground(Context... params) {
 			try {
-				Source source = new Source(new URL(update_url));
-				data = source.getElementById(CONTENT_ELEMENT);
+				Log.d("LPA", "page load from " + chapter_url);
+				Document doc = Jsoup.connect(chapter_url).get();
+				data = doc.getElementById(CONTENT_ELEMENT);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -56,8 +56,8 @@ public class LPPageActivity extends Activity {
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
 
-			Log.d("lpa", data.toString());
-			webview.loadDataWithBaseURL(update_url, data.toString(),
+//			Log.d("lpa", data.toString());
+			webview.loadDataWithBaseURL(chapter_url, data.toString(),
 					"text/html", "utf-8", null);
 		}
 	}

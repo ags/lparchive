@@ -13,11 +13,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class LPAdapter extends CursorAdapter implements Filterable {
-	private Context context;
+//	private Context context;
 
 	public LPAdapter(Context context, Cursor cursor) {
 		super(context, cursor);
-		this.context = context;
+//		this.context = context;
 	}
 
 	@Override

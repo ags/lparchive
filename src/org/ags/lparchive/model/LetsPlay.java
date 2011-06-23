@@ -1,11 +1,6 @@
 package org.ags.lparchive.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import net.htmlparser.jericho.Element;
-import net.htmlparser.jericho.HTMLElementName;
 
 import org.ags.lparchive.R;
 
@@ -16,7 +11,7 @@ public class LetsPlay implements Serializable {
 	private String author;
 	private String url;
 	private String type;
-	private List<String> tags;
+//	private List<String> tags;
 //	private List<UpdateLink> update_urls;
 	
 	public LetsPlay(int id, String game, String author, String url, String type) {
@@ -25,46 +20,46 @@ public class LetsPlay implements Serializable {
 		this.author = author;
 		this.url = url;
 		this.type = type;
-		this.tags = new ArrayList<String>();
+//		this.tags = new ArrayList<String>();
 //		this.update_urls = new ArrayList<UpdateLink>();
 	}
 
-	public LetsPlay(Element e) {
-		tags = new ArrayList<String>();
-//		update_urls = new ArrayList<UpdateLink>();
-		url = "";
-		
-		List<Element> links = e.getAllElements(HTMLElementName.A);
-		for (Element link : links) {
-			String l_class = link.getAttributeValue("class");
-			String href = link.getAttributeValue("href");
-			if (l_class != null && href != null) { 
-				if(l_class.equals("tag")) {
-					tags.add(href.substring(5, href.length()).split("#")[0]);
-				} else {
-					url = href;
-				}
-			}
-		}
-		
-		Element strong = e.getFirstElement(HTMLElementName.STRONG);
-		if (strong != null)
-			game = strong.getContent().toString();
-
-		Element span = e.getFirstElement(HTMLElementName.SPAN);
-		if (span != null) {
-			author = span.getContent().toString();
-			// remove "by " from author
-			author = author.substring(3, author.length());
-		}
-		
-		Element img = e.getFirstElement(HTMLElementName.IMG);
-		if (img != null) {
-			type = img.getAttributeValue("alt").toLowerCase();
-		} else {
-			type = "unknown";
-		}
-	}
+//	public LetsPlay(Element e) {
+//		tags = new ArrayList<String>();
+////		update_urls = new ArrayList<UpdateLink>();
+//		url = "";
+//		
+//		List<Element> links = e.getAllElements(HTMLElementName.A);
+//		for (Element link : links) {
+//			String l_class = link.getAttributeValue("class");
+//			String href = link.getAttributeValue("href");
+//			if (l_class != null && href != null) { 
+//				if(l_class.equals("tag")) {
+//					tags.add(href.substring(5).split("#")[0]);
+//				} else {
+//					url = href;
+//				}
+//			}
+//		}
+//		
+//		Element strong = e.getFirstElement(HTMLElementName.STRONG);
+//		if (strong != null)
+//			game = strong.getContent().toString();
+//
+//		Element span = e.getFirstElement(HTMLElementName.SPAN);
+//		if (span != null) {
+//			author = span.getContent().toString();
+//			// remove "by " from author
+//			author = author.substring(3, author.length());
+//		}
+//		
+//		Element img = e.getFirstElement(HTMLElementName.IMG);
+//		if (img != null) {
+//			type = img.getAttributeValue("alt").toLowerCase();
+//		} else {
+//			type = "unknown";
+//		}
+//	}
 
 	public String getGame() {
 		return game;
@@ -77,14 +72,14 @@ public class LetsPlay implements Serializable {
 	public String getUrl() {
 		return url;
 	}
-
-	public List<String> getTags() {
-		return tags;
-	}
-
-	public void addTag(String tag) {
-		tags.add(tag);
-	}
+//
+//	public List<String> getTags() {
+//		return tags;
+//	}
+//
+//	public void addTag(String tag) {
+//		tags.add(tag);
+//	}
 
 //	public List<UpdateLink> getUpdateUrls() {
 //		return update_urls;
