@@ -4,6 +4,7 @@ import org.ags.lparchive.model.LetsPlay;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,11 +14,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class LPAdapter extends CursorAdapter implements Filterable {
-//	private Context context;
+	private Context context;
 
 	public LPAdapter(Context context, Cursor cursor) {
 		super(context, cursor);
-//		this.context = context;
+		this.context = context;
 	}
 
 	@Override
@@ -45,5 +46,27 @@ public class LPAdapter extends CursorAdapter implements Filterable {
 		ImageView icon = (ImageView) view.findViewById(R.id.icon);
 		icon.setImageResource(LetsPlay.getIconResource(type));
 	}
+	
+    @Override
+    public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
+        if (getFilterQueryProvider() != null) {
+        	Log.d("LPA", "doing it here");
+        	return getFilterQueryProvider().runQuery(constraint); 
+        }
 
+        StringBuilder buffer = null;
+        String[] args = null;
+        DataHelper dh = ((LPArchiveApplication)context.getApplicationContext()).getDataHelper();
+        if (constraint != null) {
+            buffer = new StringBuilder();
+            buffer.append("LOWER(");
+            buffer.append(DataHelper.KEY_GAME);
+            buffer.append(") GLOB ?");
+            args = new String[] { constraint.toString().toLowerCase() + "*" };
+        }
+        
+        return dh.getDb().query(DataHelper.ARCHIVE_TABLE, DataHelper.projectArchive,
+        		buffer == null ? null : buffer.toString(), args, null, null, 
+        				DataHelper.SORT_GAME_ASC);
+    }
 }

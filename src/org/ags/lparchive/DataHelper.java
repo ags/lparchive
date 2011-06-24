@@ -33,10 +33,10 @@ public class DataHelper {
 	public static String KEY_CHAPTER_URL = "url";
 	public static String KEY_CHAPTER_TITLE = "title";
 	
-	private static String SORT_GAME_ASC = "game asc";
+	public static String SORT_GAME_ASC = "game asc";
 //	private static String SORT_URL_ASC = "url asc";
 	
-	private static final String[] projectArchive = new String[] { KEY_ID, 
+	public static final String[] projectArchive = new String[] { KEY_ID, 
 		KEY_GAME, KEY_AUTHOR, KEY_URL, KEY_TYPE };
 	private static final String[] projectChapter = new String[] { KEY_ID, 
 		KEY_CHAPTER_LP_ID, KEY_CHAPTER_URL, KEY_CHAPTER_TITLE };

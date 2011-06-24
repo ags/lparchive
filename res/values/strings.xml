@@ -7,4 +7,5 @@
     <string name="donate_tab"></string>
     <string name="empty_list">No entries found.</string>
     <string name="base_url">http://lparchive.org/</string>
+    <string name="search_box_default">search</string>
 </resources>

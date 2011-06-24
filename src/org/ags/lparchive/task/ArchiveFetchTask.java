@@ -13,6 +13,7 @@ import org.jsoup.select.Elements;
 
 import android.app.Activity;
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class ArchiveFetchTask extends ProgressTask {

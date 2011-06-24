@@ -21,6 +21,7 @@ public class LPPageActivity extends Activity {
 		webview = (WebView) findViewById(R.id.lp_page);
 		// permit zooming
 		webview.getSettings().setBuiltInZoomControls(true);
+		webview.getSettings().setLoadWithOverviewMode(true);
 		webview.getSettings().setUseWideViewPort(true);
 
 		// get the content of the relevant LP, either from web or TODO db
