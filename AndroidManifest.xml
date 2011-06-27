@@ -17,7 +17,8 @@
 		<activity android:name=".list.ChapterListActivity"></activity>
 		<activity android:name=".list.LatestListActivity"></activity>
 		<activity android:name=".list.LPListActivity"></activity>
-		<activity android:name=".LPPageActivity"></activity>
+		<activity android:name=".LPPageActivity" android:configChanges="orientation"></activity>
+		<activity android:name=".Preferences" android:label="@string/prefs_activity"></activity>
     </application>
     
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>

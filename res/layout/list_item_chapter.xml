@@ -4,13 +4,13 @@
     android:padding="6dip">
     <LinearLayout
         android:orientation="vertical"
-        android:layout_width="0dip"
+ 		android:layout_width="0dip"
         android:layout_weight="1"
         android:layout_height="fill_parent">
         <TextView
             android:id="@+id/update_title"
             android:layout_width="fill_parent"
-            android:layout_height="0dip"
+			android:layout_height="0dip"
             android:layout_weight="1"
             android:gravity="center_vertical"
             android:padding="9dip"

@@ -13,7 +13,6 @@ import org.jsoup.select.Elements;
 
 import android.app.Activity;
 import android.content.Context;
-import android.text.TextUtils;
 import android.util.Log;
 
 public class ArchiveFetchTask extends ProgressTask {
@@ -38,7 +37,6 @@ public class ArchiveFetchTask extends ProgressTask {
 				Elements e_url = e.getElementsByClass("lp");
 				if(e_url.isEmpty())
 					continue;
-				//url = game = author = type = "";
 				url = e_url.first().attr("href");
 				if(url.equals("/random"))
 					continue;

@@ -85,6 +85,7 @@ public class DataHelper {
 		this.insertLpStmnt.bindString(1, game);
 		this.insertLpStmnt.bindString(2, author);
 		this.insertLpStmnt.bindString(3, url);
+		// TODO could save space using a long instead of string
 		this.insertLpStmnt.bindString(4, type);
 		return this.insertLpStmnt.executeInsert();
 	}

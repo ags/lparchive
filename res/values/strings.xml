@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">LPArchive</string>
+    <string name="package_name">org.ags.lparchive</string>
     <string name="fetching_wait">Fetching, please wait...</string>
     <string name="latest_tab">Latest</string>
     <string name="archive_tab">Archive</string>
-    <string name="donate_tab"></string>
+    <string name="donate_tab">Donate</string>
     <string name="empty_list">No entries found.</string>
-    <string name="base_url">http://lparchive.org/</string>
     <string name="search_box_default">search</string>
+    <string name="download_lp">Download</string>
+    <string name="donate_url">http://lparchive.org/donate</string>
+    <string name="base_url">http://lparchive.org/</string>
+    <string name="intro_url">/introduction</string>
+    
+    <string name="prefs_activity">Preferences</string>
+    <string name="dark_theme_title">Dark Theme</string>
+    <string name="dark_theme_pref_summary">Use a dark theme when viewing pages</string>
 </resources>

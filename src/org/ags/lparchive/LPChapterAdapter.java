@@ -20,7 +20,7 @@ public class LPChapterAdapter extends CursorAdapter {
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(
 				Context.LAYOUT_INFLATER_SERVICE);
-		View v = inflater.inflate(R.layout.list_item_update, null);
+		View v = inflater.inflate(R.layout.list_item_chapter, null);
 		return v;
 	}
 
