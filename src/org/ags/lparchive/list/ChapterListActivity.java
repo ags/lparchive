@@ -2,10 +2,10 @@ package org.ags.lparchive.list;
 
 import org.ags.lparchive.DataHelper;
 import org.ags.lparchive.LPArchiveApplication;
-import org.ags.lparchive.LPChapterAdapter;
-import org.ags.lparchive.LPPageActivity;
+import org.ags.lparchive.ChapterPageActivity;
 import org.ags.lparchive.Preferences;
 import org.ags.lparchive.R;
+import org.ags.lparchive.list.adapter.ChapterAdapter;
 import org.ags.lparchive.task.DownloadLPTask;
 import org.ags.lparchive.task.ProgressTask;
 import org.jsoup.Jsoup;
@@ -50,13 +50,13 @@ public class ChapterListActivity extends ListActivity {
 	
 	private void populate() {
 		Cursor cursor = dh.getChapters(lp_id);
-		setListAdapter(new LPChapterAdapter(ChapterListActivity.this, cursor));
+		setListAdapter(new ChapterAdapter(ChapterListActivity.this, cursor));
 	}
 	
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
-		Intent i = new Intent(this, LPPageActivity.class);
+		Intent i = new Intent(this, ChapterPageActivity.class);
 		String url = dh.getChapter(id).getUrl();
 		boolean is_intro = url.equals(getString(R.string.intro_url));
 		i.putExtra("is_intro", is_intro);
@@ -67,7 +67,7 @@ public class ChapterListActivity extends ListActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.options_menu_chapter, menu);
+	    inflater.inflate(R.menu.options_menu_chapter_list, menu);
 	    return true;
 	}
 	
@@ -79,8 +79,7 @@ public class ChapterListActivity extends ListActivity {
 	    	new DownloadLPTask(this, lp_id).execute();
 	        return true;
 	    case R.id.prefs:
-	    	 Intent i = new Intent(getBaseContext(), Preferences.class);
-	    	 startActivity(i);
+	    	 startActivity(new Intent(this, Preferences.class));
 	    	return true;
 	    default:
 	        return super.onOptionsItemSelected(item);
@@ -91,12 +90,12 @@ public class ChapterListActivity extends ListActivity {
 		private static final String CONTENT_ELEMENT = "content";
 		private static final String LINK_PREFIX = "Update%20";
 
-		public ChapterFetchTask(ListActivity activity) {
-			super(activity, getString(R.string.fetching_wait));
+		public ChapterFetchTask(Context context) {
+			super(context, getString(R.string.fetching_wait));
 		}
 
 		@Override
-		protected String doInBackground(Context... params) {
+		protected String doInBackground(Void... unused) {
 			try {
 				Document doc = Jsoup.connect(chapters_url).get();
 				Element e = doc.getElementById(CONTENT_ELEMENT);

@@ -16,4 +16,5 @@
     <string name="prefs_activity">Preferences</string>
     <string name="dark_theme_title">Dark Theme</string>
     <string name="dark_theme_pref_summary">Use a dark theme when viewing pages</string>
+    <string name="refresh_chapter">Refresh</string>
 </resources>

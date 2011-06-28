@@ -1,22 +1,21 @@
 package org.ags.lparchive.task;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-public abstract class ProgressTask extends AsyncTask<Context, Integer, String> {
+public abstract class ProgressTask extends AsyncTask<Void, Integer, String> {
 	protected ProgressDialog dialog;
-	protected Activity activity;
+	protected Context context;
 
-	public ProgressTask(Activity activity, String message) {
+	public ProgressTask(Context context, String message) {
 		super();
-		this.activity = activity;
+		this.context = context;
+
 		// create a progress dialog
-		dialog = new ProgressDialog(activity);
+		dialog = new ProgressDialog(context);
 		dialog.setMessage(message);
-		dialog.setIndeterminate(true);
-		dialog.setCancelable(true);
+		dialog.setCancelable(false);
 	}
 
 	@Override
@@ -25,7 +24,7 @@ public abstract class ProgressTask extends AsyncTask<Context, Integer, String> {
 		dialog.show();
 	}
 
-	abstract protected String doInBackground(Context... params);
+	abstract protected String doInBackground(Void... unused);
 
 	@Override
 	protected void onPostExecute(String result) {

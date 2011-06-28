@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.ags.lparchive.DataHelper;
@@ -14,7 +13,7 @@ import org.ags.lparchive.LPArchiveApplication;
 import org.ags.lparchive.R;
 import org.jsoup.nodes.Element;
 
-import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -29,30 +28,33 @@ public class DownloadLPTask extends ProgressTask {
 	private Cursor cursor;
 	int max;
 	
-	public DownloadLPTask(Activity activity, long lpId) {
-		super(activity, "Downloading...");
+	public DownloadLPTask(Context context, long lpId) {
+		super(context, "Downloading...");
 		this.lpId = lpId;
-		this.lpaa = (LPArchiveApplication) activity.getApplicationContext();
+		this.lpaa = (LPArchiveApplication) context.getApplicationContext();
 		this.dh = lpaa.getDataHelper();
 		this.cursor = dh.getChapters(lpId);
 		this.max = cursor.getCount();
 		
-		dialog.setMax(max);
+		dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+//		dialog.setMax(max);
 		dialog.setProgress(0);
+		// TODO dealing with incomplete fetches?
+		dialog.setCancelable(true);
 	}
 
 	@Override
-	protected String doInBackground(Context... params) {
+	protected String doInBackground(Void... unused) {
 		String extState = Environment.getExternalStorageState();
 		if (!extState.equals(Environment.MEDIA_MOUNTED)) {
 			// toast
 		}
 
 		String sdcard_path = Environment.getExternalStorageDirectory().toString() + "/";
-		String introUrl = activity.getString(R.string.intro_url);
-		String baseUrl = activity.getString(R.string.base_url);
+		String introUrl = context.getString(R.string.intro_url);
+		String baseUrl = context.getString(R.string.base_url);
 		String lpUrl = dh.getLP(lpId).getUrl();
-		String package_name = activity.getString(R.string.package_name);
+		String package_name = context.getString(R.string.package_name);
 		String chapterUrl, getUrl, diskUrl, imgSrc, imgOut;
 		boolean isIntro;
 		int i = 0;
@@ -68,9 +70,8 @@ public class DownloadLPTask extends ProgressTask {
 					getUrl += chapterUrl;
 				}
 				
-				Element content = PageFetchTask.getPageElement(getUrl, isIntro, lpaa);
-
 				try {
+					Element content = PageFetchTask.getPageElement(getUrl, isIntro, lpaa);
 					// create path to file
 					File f = new File(diskUrl + "/chapter.html");
 					f.getParentFile().mkdirs();
@@ -104,34 +105,26 @@ public class DownloadLPTask extends ProgressTask {
 	}
 
 	public void downloadFromUrl(String imageURL, String fileName)
-			throws Exception {
-		String extState = Environment.getExternalStorageState();
-		if (!extState.equals(Environment.MEDIA_MOUNTED))
-			throw new Exception();
+			throws Exception {	
+		Log.d("LPA", "img begin");
 		// Connect to the URL
-		URL myImageURL = new URL(imageURL);
-		HttpURLConnection connection = (HttpURLConnection) myImageURL
-				.openConnection();
-		connection.setDoInput(true);
-		connection.connect();
-		InputStream input = connection.getInputStream();
+		URL url = new URL(imageURL);
+		InputStream input = url.openConnection().getInputStream();
 
 		// Get the bitmap
 		Bitmap myBitmap = BitmapFactory.decodeStream(input);
 
 		// Save the bitmap to the file
-		String path = Environment.getExternalStorageDirectory().toString();
-		OutputStream fOut = null;
-		File file = new File(path, fileName);
-		file.getParentFile().mkdirs();
-		fOut = new FileOutputStream(file);
+//		file.getParentFile().mkdirs();
+		OutputStream fOut = new FileOutputStream(new File(fileName));
 
 		myBitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
-		fOut.flush();
 		fOut.close();
+		Log.d("LPA", "img end");
 	}
 
 	protected void onProgressUpdate(Integer... progress) {
+		Log.d("LPA", "progress: " + progress[0]);
 		dialog.setProgress(progress[0]);
 	}
 }

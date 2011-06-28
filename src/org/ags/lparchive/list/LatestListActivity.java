@@ -1,8 +1,8 @@
 package org.ags.lparchive.list;
 
-import org.ags.lparchive.LPAdapter;
 import org.ags.lparchive.LPArchiveApplication;
 import org.ags.lparchive.R;
+import org.ags.lparchive.list.adapter.LPAdapter;
 
 import android.database.Cursor;
 import android.os.Bundle;

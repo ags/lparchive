@@ -8,11 +8,11 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 public abstract class PageFetchTask extends ProgressTask {
 
@@ -22,72 +22,76 @@ public abstract class PageFetchTask extends ProgressTask {
 	protected String url;
 	protected boolean isIntro;
 	
-	public PageFetchTask(Activity activity, String url, boolean isIntro) {
-		super(activity, activity.getString(R.string.fetching_wait));
+	public PageFetchTask(Context context, String url, boolean isIntro) {
+		super(context, context.getString(R.string.fetching_wait));
 		this.url = url;
 		this.isIntro = isIntro;
 	}
 
 	@Override
-	protected String doInBackground(Context... params) {
+	protected String doInBackground(Void... unused) {
 		try {
 			Log.d("LPA", "intro page: " + isIntro);			
 			Log.d("LPA", "page load from " + url);
 			LPArchiveApplication lpaa = ((LPArchiveApplication)
-					activity.getApplicationContext());
+					context.getApplicationContext());
 			
 			html = getPage(url, isIntro, lpaa);
-			Log.d("LPA", html);
+			return "done";
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return e.getMessage();
 		}
-		return null;
 	}
 
 	public static Element getPageElement(String url, boolean isIntro,
-			LPArchiveApplication lpaa) {
-		try {
-			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(lpaa);
-			boolean darkTheme = prefs.getBoolean("darkThemePref", false);
-			boolean inDb = false;
-			if (inDb) {
-				// get path from db
-				// read in html to string
-				//Document doc = Jsoup.parse(html);
-			} else {
-				Document doc = Jsoup.connect(url).get();
+			LPArchiveApplication lpaa) throws IOException {
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(lpaa);
+		boolean darkTheme = prefs.getBoolean("darkThemePref", false);
+		boolean inDb = false;
+		if (inDb) {
+			// get path from db
+			// read in html to string
+			// Document doc = Jsoup.parse(html);
+			return null;
+		} else {
+			Document doc = Jsoup.connect(url).get();
 
-				if (isIntro) {
-					// attempt to remove the table of contents
-					doc.getElementsByClass("toc").remove();
-					for (Element e : doc.getElementsByTag("h1")) {
-						if (TOC_TEXT.equals(e.text()))
-							e.remove();
-					}
-					// TODO if empty, add message saying so.
+			if (isIntro) {
+				// attempt to remove the table of contents
+				doc.getElementsByClass("toc").remove();
+				for (Element e : doc.getElementsByTag("h1")) {
+					if (TOC_TEXT.equals(e.text()))
+						e.remove();
 				}
-				
-				Element content = doc.getElementById(CONTENT_ELEMENT);
-
-				if(darkTheme) {
-					content.prepend("<style type=\"text/css\">* { background: #000000; " +
-							"color:#FFFFFF}</style>");
-				}
-				return content;
+				// TODO if empty, add message saying so.
 			}
-			
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+
+			Element content = doc.getElementById(CONTENT_ELEMENT);
+
+			if (darkTheme) {
+				content.prepend("<style type=\"text/css\">" +
+						"*{background: #000000;color:#FFFFFF}</style>");
+			}
+			return content;
 		}
-		return null;
 	}
 	
+	@Override
+	protected void onPostExecute(String result) {
+		super.onPostExecute(result);
+		// switch to enum
+		if(!result.equals("done")) {
+			Toast.makeText(context, result, Toast.LENGTH_LONG).show();
+		}
+	}
+
 	// get a page html, from db if can
 	public static String getPage(String url, boolean isIntro,
-			LPArchiveApplication lpaa) {
-		return getPageElement(url, isIntro, lpaa).toString();
-		
+			LPArchiveApplication lpaa) throws IOException {
+		Element e = getPageElement(url, isIntro, lpaa);
+		return (e != null) ? e.toString() : null;
 	}
 }

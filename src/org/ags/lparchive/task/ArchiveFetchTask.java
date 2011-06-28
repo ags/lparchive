@@ -12,7 +12,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import android.app.Activity;
-import android.content.Context;
 import android.util.Log;
 
 public class ArchiveFetchTask extends ProgressTask {
@@ -22,14 +21,14 @@ public class ArchiveFetchTask extends ProgressTask {
 		super(activity, activity.getString(R.string.fetching_wait));
 	}
 	
-	protected String doInBackground(Context... params) {
+	protected String doInBackground(Void... unused) {
 		LPArchiveApplication appState = ((LPArchiveApplication) 
-				activity.getApplicationContext());
+				context.getApplicationContext());
 
 		DataHelper dh = appState.getDataHelper();
 		try {
 			Log.d("LPA", "get doc");
-			Document doc = Jsoup.connect(activity.getString(R.string.base_url)).get();
+			Document doc = Jsoup.connect(context.getString(R.string.base_url)).get();
 			Log.d("LPA", "got doc");
 			dh.getDb().beginTransaction();
 			String url, game, author, type;
@@ -74,8 +73,7 @@ public class ArchiveFetchTask extends ProgressTask {
 	@Override
 	protected void onPostExecute(String result) {
 		super.onPostExecute(result);
-		Log.d("LPA", "AFT post exec, creating tabs");
-		((LPArchiveActivity)activity).createTabs();
+		((LPArchiveActivity)context).createTabs();
 	}
 
 }

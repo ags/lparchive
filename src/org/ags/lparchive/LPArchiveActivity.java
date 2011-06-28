@@ -6,9 +6,11 @@ import org.ags.lparchive.task.ArchiveFetchTask;
 
 import android.app.TabActivity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.TabHost;
 
 public class LPArchiveActivity extends TabActivity {
@@ -28,22 +30,21 @@ public class LPArchiveActivity extends TabActivity {
 		spec = tabHost.newTabSpec("latest").setIndicator(
 				getString(R.string.latest_tab), 
 				getResources().getDrawable(
-						android.R.drawable.ic_menu_more)).setContent(intent);
+						android.R.drawable.ic_menu_recent_history)).setContent(intent);
 		tabHost.addTab(spec);
 
 		intent = new Intent().setClass(this, ArchiveListActivity.class);
 		spec = tabHost.newTabSpec("archive").setIndicator(
 				getString(R.string.archive_tab), 
 				getResources().getDrawable(
-						android.R.drawable.ic_menu_more)).setContent(intent);
+						R.drawable.ic_menu_archive)).setContent(intent);
 		tabHost.addTab(spec);
 		
-		intent = new Intent(Intent.ACTION_VIEW, 
-				Uri.parse(getString(R.string.donate_url)));
+		intent = new Intent(this, DonatePageActivity.class);
 		spec = tabHost.newTabSpec("donate").setIndicator(
 				getString(R.string.donate_tab), 
 				getResources().getDrawable(
-						android.R.drawable.ic_menu_more)).setContent(intent);
+						android.R.drawable.ic_menu_info_details)).setContent(intent);
 		tabHost.addTab(spec);
 		
 		tabHost.setCurrentTab(0);
@@ -57,8 +58,27 @@ public class LPArchiveActivity extends TabActivity {
 		if (appState.getFirstRun()) {
 			new ArchiveFetchTask(this).execute();
 		} else {
-			Log.d("LPA", "already fetched!");
+			Log.d("LPA", "already fetched!!");
 			createTabs();
 		}
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.options_menu_main, menu);
+	    return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle item selection
+	    switch (item.getItemId()) {
+	    case R.id.prefs:
+	    	startActivity(new Intent(this, Preferences.class));
+	    	return true;
+	    default:
+	        return super.onOptionsItemSelected(item);
+	    }
 	}
 }

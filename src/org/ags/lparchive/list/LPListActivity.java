@@ -2,7 +2,7 @@ package org.ags.lparchive.list;
 
 import org.ags.lparchive.DataHelper;
 import org.ags.lparchive.LPArchiveApplication;
-import org.ags.lparchive.LPPageActivity;
+import org.ags.lparchive.ChapterPageActivity;
 import org.ags.lparchive.R;
 import org.ags.lparchive.model.LetsPlay;
 
@@ -21,7 +21,7 @@ public class LPListActivity extends ListActivity {
 		Intent i = null;
 		// video formatting is inconsistent, so load as page
 		if(type.equals("video")) {
-			i = new Intent(this, LPPageActivity.class);
+			i = new Intent(this, ChapterPageActivity.class);
 			i.putExtra("page_url", getString(R.string.base_url) + lp.getUrl());
 		} else {
 			i = new Intent(this, ChapterListActivity.class);
