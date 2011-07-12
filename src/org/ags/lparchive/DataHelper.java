@@ -34,7 +34,6 @@ public class DataHelper {
 	public static String KEY_CHAPTER_TITLE = "title";
 	
 	public static String SORT_GAME_ASC = "game asc";
-//	private static String SORT_URL_ASC = "url asc";
 	
 	public static final String[] projectArchive = new String[] { KEY_ID, 
 		KEY_GAME, KEY_AUTHOR, KEY_URL, KEY_TYPE };
@@ -62,7 +61,6 @@ public class DataHelper {
 	private static final String LATEST_LP = String.format(
 			"insert into %s (%s) values (?)", LATEST_TABLE, KEY_LATEST_ID);
 	
-//	private SQLiteQueryBuilder recent_join;
 	private static final String RECENT_JOIN = "SELECT archive._id, archive.game, " +
 			"archive.author, archive.url, archive.type FROM archive, latest " +
 			"WHERE (archive._id = latest.lp_id) ORDER BY game asc";
@@ -112,6 +110,7 @@ public class DataHelper {
 	}
 	
 	public Cursor getRecentLetsPlay() {
+		// join doesn't appear to work unless using raw query
 		return this.db.rawQuery(RECENT_JOIN, null);
 	}
 
@@ -171,20 +170,12 @@ public class DataHelper {
 	}
 
 	public Cursor lpNameSearch(String name) {
-//        StringBuilder buffer = null;
-//        String[] args = null;
-//        if (name != null) {
-//            buffer = new StringBuilder();
-//            buffer.append("LOWER(");
-//            buffer.append(DataHelper.KEY_GAME);
-//            buffer.append(") GLOB ?");
-//            args = new String[] { name.toLowerCase() + "*" };
-//        }
         String[] args = new String[] { "%" + name + "%"};
         return db.query(DataHelper.ARCHIVE_TABLE, DataHelper.projectArchive,
         		DataHelper.KEY_GAME + " LIKE ?", args, null, null, 
         				DataHelper.SORT_GAME_ASC);
 	}
+	
 	private static class OpenHelper extends SQLiteOpenHelper {
 
 		OpenHelper(Context context) {
