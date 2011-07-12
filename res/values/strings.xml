@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">LPArchive</string>
+    <string name="app_name">Let\'s Play! Archive</string>
     <string name="package_name">org.ags.lparchive</string>
     <string name="fetching_wait">Fetching, please wait...</string>
     <string name="latest_tab">Latest</string>

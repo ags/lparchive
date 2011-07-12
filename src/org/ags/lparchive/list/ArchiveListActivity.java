@@ -22,7 +22,7 @@ public class ArchiveListActivity extends LPListActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.lp_list);
 
-		// enable fast scrolling since the archive list may be long
+		// enable fast scrolling as the archive list may be long
 		getListView().setFastScrollEnabled(true);
 		Cursor cursor = null;
 

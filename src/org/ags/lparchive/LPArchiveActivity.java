@@ -30,21 +30,21 @@ public class LPArchiveActivity extends TabActivity {
 		spec = tabHost.newTabSpec("latest").setIndicator(
 				getString(R.string.latest_tab), 
 				getResources().getDrawable(
-						android.R.drawable.ic_menu_recent_history)).setContent(intent);
+						R.drawable.ic_tab_latest)).setContent(intent);
 		tabHost.addTab(spec);
 
 		intent = new Intent().setClass(this, ArchiveListActivity.class);
 		spec = tabHost.newTabSpec("archive").setIndicator(
 				getString(R.string.archive_tab), 
 				getResources().getDrawable(
-						R.drawable.ic_menu_archive)).setContent(intent);
+						R.drawable.ic_tab_archive)).setContent(intent);
 		tabHost.addTab(spec);
 		
 		intent = new Intent(this, DonatePageActivity.class);
 		spec = tabHost.newTabSpec("donate").setIndicator(
 				getString(R.string.donate_tab), 
 				getResources().getDrawable(
-						android.R.drawable.ic_menu_info_details)).setContent(intent);
+						R.drawable.ic_tab_donate)).setContent(intent);
 		tabHost.addTab(spec);
 		
 		tabHost.setCurrentTab(0);

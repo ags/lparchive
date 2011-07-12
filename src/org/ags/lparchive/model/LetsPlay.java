@@ -94,16 +94,7 @@ public class LetsPlay implements Serializable {
 	}
 
 	public int getIconResource() {
-		if (type.equals("text"))
-			return R.drawable.icon_text;
-		else if (type.equals("screenshot"))
-			return R.drawable.icon_screenshot;
-		else if (type.equals("video"))
-			return R.drawable.icon_video;
-		else if (type.equals("hybrid"))
-			return R.drawable.icon_hybrid;
-		else
-			return R.drawable.icon;
+		return getIconResource(type);
 	}
 
 	public String getType() {
