@@ -18,6 +18,18 @@ public abstract class PageFetchTask extends ProgressTask {
 
 	private static final String CONTENT_ELEMENT = "content";
 	private static final String TOC_TEXT = "Table of Contents";
+	
+	// TODO read in from assets
+	private static final String CSS = "<style type=\"text/css\">" +
+	"* { font-family: Verdana, Arial, sans-serif; }" +
+	"a { color: #a62625; font-weight: bold; text-decoration: none; border-bottom: 1px dotted #a62625; }" +
+	"table { margin: 0 -2.5em; }" +
+	"p,  ul,  blockquote { margin: 1em 0; }" +
+	"table td,  ul.toc li { padding: .9em 3em; }" +
+	"h1, h2, h3 { font-weight: 700; }</style>";
+	private static final String CSS_DARK = "<style type=\"text/css\">" +
+	"*{background: #000000;color:#FFFFFF}</style>";
+	
 	protected String html;
 	protected String url;
 	protected boolean isIntro;
@@ -30,9 +42,8 @@ public abstract class PageFetchTask extends ProgressTask {
 
 	@Override
 	protected String doInBackground(Void... unused) {
-		try {
-			Log.d("LPA", "intro page: " + isIntro);			
-			Log.d("LPA", "page load from " + url);
+		try {	
+			Log.d("LPA", "intro page? " + isIntro + " page load from " + url);
 			LPArchiveApplication lpaa = ((LPArchiveApplication)
 					context.getApplicationContext());
 			
@@ -44,7 +55,24 @@ public abstract class PageFetchTask extends ProgressTask {
 			return e.getMessage();
 		}
 	}
+	
+	@Override
+	protected void onPostExecute(String result) {
+		super.onPostExecute(result);
+		// TODO switch to enum
+		if(!result.equals("done")) {
+			Toast.makeText(context, context.getString(R.string.timeout_error), 
+					Toast.LENGTH_LONG).show();
+		}
+	}
 
+	// get a page html, from db if can
+	public static String getPage(String url, boolean isIntro,
+			LPArchiveApplication lpaa) throws IOException {
+		Element e = getPageElement(url, isIntro, lpaa);
+		return (e != null) ? e.toString() : null;
+	}
+	
 	public static Element getPageElement(String url, boolean isIntro,
 			LPArchiveApplication lpaa) throws IOException {
 		SharedPreferences prefs = PreferenceManager
@@ -66,32 +94,17 @@ public abstract class PageFetchTask extends ProgressTask {
 					if (TOC_TEXT.equals(e.text()))
 						e.remove();
 				}
-				// TODO if empty, add message saying so.
+				// TODO if empty, add message saying so (or check intros when getting chapter list)
 			}
 
 			Element content = doc.getElementById(CONTENT_ELEMENT);
-
-			if (darkTheme) {
-				content.prepend("<style type=\"text/css\">" +
-						"*{background: #000000;color:#FFFFFF}</style>");
-			}
+			
+			content.prepend(CSS);
+			if (darkTheme)
+				content.prepend(CSS_DARK);
+			
 			return content;
 		}
 	}
-	
-	@Override
-	protected void onPostExecute(String result) {
-		super.onPostExecute(result);
-		// switch to enum
-		if(!result.equals("done")) {
-			Toast.makeText(context, result, Toast.LENGTH_LONG).show();
-		}
-	}
 
-	// get a page html, from db if can
-	public static String getPage(String url, boolean isIntro,
-			LPArchiveApplication lpaa) throws IOException {
-		Element e = getPageElement(url, isIntro, lpaa);
-		return (e != null) ? e.toString() : null;
-	}
 }

@@ -170,6 +170,21 @@ public class DataHelper {
 		return c;
 	}
 
+	public Cursor lpNameSearch(String name) {
+//        StringBuilder buffer = null;
+//        String[] args = null;
+//        if (name != null) {
+//            buffer = new StringBuilder();
+//            buffer.append("LOWER(");
+//            buffer.append(DataHelper.KEY_GAME);
+//            buffer.append(") GLOB ?");
+//            args = new String[] { name.toLowerCase() + "*" };
+//        }
+        String[] args = new String[] { "%" + name + "%"};
+        return db.query(DataHelper.ARCHIVE_TABLE, DataHelper.projectArchive,
+        		DataHelper.KEY_GAME + " LIKE ?", args, null, null, 
+        				DataHelper.SORT_GAME_ASC);
+	}
 	private static class OpenHelper extends SQLiteOpenHelper {
 
 		OpenHelper(Context context) {

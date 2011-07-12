@@ -6,23 +6,24 @@ import android.content.SharedPreferences;
 public class LPArchiveApplication extends Application {
 	private DataHelper dataHelper;
 	private SharedPreferences mPrefs;
-
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		this.dataHelper = new DataHelper(this);
 		mPrefs = getSharedPreferences("LPAPrefs", 0);
-//		mPrefs.edit().clear();
-//		mPrefs.edit().commit();
 	}
 
 	public DataHelper getDataHelper() {
 		return this.dataHelper;
 	}
 
-	public void setRunned() {
+	/**
+	 * Set whether the application has been launched before.
+	 */
+	public void setFirstRun(boolean firstRun) {
 		SharedPreferences.Editor edit = mPrefs.edit();
-		edit.putBoolean("firstRun", false);
+		edit.putBoolean("firstRun", firstRun);
 		edit.commit();
 	}
 

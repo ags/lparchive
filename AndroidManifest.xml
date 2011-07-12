@@ -13,7 +13,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-		<activity android:name=".list.ArchiveListActivity"></activity>
+		<activity android:name=".list.ArchiveListActivity">
+			<intent-filter>
+            	<action android:name="android.intent.action.SEARCH" />
+        	</intent-filter>
+        	<meta-data android:name="android.app.searchable"
+                   		android:resource="@xml/searchable"/>
+		</activity>
 		<activity android:name=".list.ChapterListActivity"></activity>
 		<activity android:name=".list.LatestListActivity"></activity>
 		<activity android:name=".list.LPListActivity"></activity>

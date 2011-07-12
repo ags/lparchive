@@ -4,48 +4,38 @@ import org.ags.lparchive.LPArchiveApplication;
 import org.ags.lparchive.R;
 import org.ags.lparchive.list.adapter.LPAdapter;
 
+import android.app.SearchManager;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.widget.EditText;
 
 public class ArchiveListActivity extends LPListActivity {
-	private EditText filterText = null;
 	private LPAdapter adapter;
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.lp_list_filtered);
-		filterText = (EditText) findViewById(R.id.search_box);
-		filterText.addTextChangedListener(filterTextWatcher);
+		setContentView(R.layout.lp_list);
+
+		// enable fast scrolling since the archive list may be long
+		getListView().setFastScrollEnabled(true);
+		Cursor cursor = null;
 
 		LPArchiveApplication appState = ((LPArchiveApplication) getApplicationContext());
-		Cursor cursor = appState.getDataHelper().getArchive();
-		this.adapter = new LPAdapter(this, cursor);
+		Intent intent = getIntent();
+		// search archive by game name
+		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+			String query = intent.getStringExtra(SearchManager.QUERY);
+			cursor = appState.getDataHelper().lpNameSearch(query);
+		// display whole archive
+		} else {
+			cursor = appState.getDataHelper().getArchive();
+		}
+
+		adapter = new LPAdapter(this, cursor);
 		setListAdapter(adapter);
 	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		filterText.removeTextChangedListener(filterTextWatcher);
-	}
-
-	private TextWatcher filterTextWatcher = new TextWatcher() {
-
-		public void afterTextChanged(Editable s) {
-		}
-
-		public void beforeTextChanged(CharSequence s, int start, int count,
-				int after) {
-		}
-
-		public void onTextChanged(CharSequence s, int start, int before,
-				int count) {
-			adapter.getFilter().filter(s);
-			adapter.notifyDataSetChanged();
-		}
-
-	};
 }
