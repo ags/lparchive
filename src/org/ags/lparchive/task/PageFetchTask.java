@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.ags.lparchive.LPArchiveApplication;
 import org.ags.lparchive.R;
+import org.ags.lparchive.RetCode;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -41,27 +42,26 @@ public abstract class PageFetchTask extends ProgressTask {
 	}
 
 	@Override
-	protected String doInBackground(Void... unused) {
+	protected RetCode doInBackground(Void... unused) {
 		try {	
 			Log.d("LPA", "intro page? " + isIntro + " page load from " + url);
 			LPArchiveApplication lpaa = ((LPArchiveApplication)
 					context.getApplicationContext());
 			
 			html = getPage(url, isIntro, lpaa);
-			return "done";
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			return RetCode.SUCCESS;
+		} catch (IOException e) {
 			e.printStackTrace();
-			return e.getMessage();
+			return RetCode.FETCH_FAILED;
 		}
 	}
-	
+
 	@Override
-	protected void onPostExecute(String result) {
+	protected void onPostExecute(RetCode result) {
 		super.onPostExecute(result);
-		// TODO switch to enum
-		if(!result.equals("done")) {
-			Toast.makeText(context, context.getString(R.string.timeout_error), 
+
+		if (result.equals(RetCode.FETCH_FAILED)) {
+			Toast.makeText(context, context.getString(R.string.timeout_error),
 					Toast.LENGTH_LONG).show();
 		}
 	}

@@ -37,13 +37,16 @@ public class ChapterPageActivity extends PageActivity {
 	}
 	
 	private void loadPage() {
-		cursor.moveToPosition(position);
-		long id = cursor.getLong(0);
-		Chapter c = dh.getChapter(id);
-		boolean isIntro = c.isIntro();
-		String pageUrl = (isIntro) ? chaptersUrl : chaptersUrl + c.getUrl();
-		
-		new LoadPageFetchTask(this, pageUrl, isIntro).execute();
+		if (cursor.moveToPosition(position)) {
+			long id = cursor.getLong(0);
+			Chapter c = dh.getChapter(id);
+			boolean isIntro = c.isIntro();
+			String pageUrl = (isIntro) ? chaptersUrl : chaptersUrl + c.getUrl();
+
+			new LoadPageFetchTask(this, pageUrl, isIntro).execute();
+		} else {
+			Log.e("LPA", "error moving to position");
+		}
 	}
 	
 	@Override
@@ -98,14 +101,13 @@ public class ChapterPageActivity extends PageActivity {
 			super(activity, url, isIntro);
 		}
 
-		protected void onPostExecute(String result) {
+		protected void onPostExecute(RetCode result) {
 			super.onPostExecute(result);
-			Log.d("LPA", "html: " + html);
-			Log.d("LPA", "webview null: " + (webview == null));
-			Log.d("LPA", "url null: " + (url == null));
-			Log.d("LPA", "html null: " + (html == null));
-			webview.loadDataWithBaseURL(url, html, "text/html",
-					"utf-8", null);
+			if (result.equals(RetCode.SUCCESS)) {
+				Log.d("LPA", "html: " + html);
+				webview.loadDataWithBaseURL(url, html, "text/html", "utf-8",
+						null);
+			}
 		}
 	}
 }

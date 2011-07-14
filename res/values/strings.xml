@@ -29,5 +29,5 @@
     <string name="empty_list">No entries found.</string>
     <string name="fetching_wait">Fetching, please wait...</string>
     <string name="timeout_error">Request timed out, please refresh or check your connection.</string>
-
+	<string name="db_error">Database error.</string>
 </resources>

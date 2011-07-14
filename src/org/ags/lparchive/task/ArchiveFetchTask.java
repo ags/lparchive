@@ -6,6 +6,7 @@ import org.ags.lparchive.DataHelper;
 import org.ags.lparchive.LPArchiveActivity;
 import org.ags.lparchive.LPArchiveApplication;
 import org.ags.lparchive.R;
+import org.ags.lparchive.RetCode;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -23,7 +24,7 @@ public class ArchiveFetchTask extends ProgressTask {
 		super(activity, activity.getString(R.string.fetching_wait));
 	}
 
-	protected String doInBackground(Void... unused) {
+	protected RetCode doInBackground(Void... unused) {
 		Document doc = null;
 		try {
 			Log.d(TAG, "begin document fetch");
@@ -32,6 +33,7 @@ public class ArchiveFetchTask extends ProgressTask {
 		} catch (IOException e) {
 			Log.e(TAG, "failed to retrieve document");
 			e.printStackTrace();
+			return RetCode.FETCH_FAILED;
 		}
 		LPArchiveApplication appState = ((LPArchiveApplication) 
 				context.getApplicationContext());
@@ -80,19 +82,23 @@ public class ArchiveFetchTask extends ProgressTask {
 		
 		// application has run
 		appState.setFirstRun(false);
-		return "done";
+		return RetCode.SUCCESS;
 	}
 
 	@Override
-	protected void onPostExecute(String result) {
+	protected void onPostExecute(RetCode result) {
 		super.onPostExecute(result);
-		// TODO switch to enum
-		if(!result.equals("done")) {
-			Toast.makeText(context, context.getString(R.string.timeout_error), 
+		switch (result) {
+		case FETCH_FAILED:
+			Toast.makeText(context, context.getString(R.string.timeout_error),
 					Toast.LENGTH_LONG).show();
-		} else {
+			break;
+		case SUCCESS:
 			Log.d(TAG, "making tabs");
-			((LPArchiveActivity)context).createTabs();
+			((LPArchiveActivity) context).createTabs();
+			break;
+		default:
+			break;
 		}
 	}
 }

@@ -1,10 +1,13 @@
 package org.ags.lparchive.list;
 
+import java.io.IOException;
+
 import org.ags.lparchive.DataHelper;
 import org.ags.lparchive.LPArchiveApplication;
 import org.ags.lparchive.ChapterPageActivity;
 import org.ags.lparchive.Preferences;
 import org.ags.lparchive.R;
+import org.ags.lparchive.RetCode;
 import org.ags.lparchive.list.adapter.ChapterAdapter;
 import org.ags.lparchive.task.DownloadLPTask;
 import org.ags.lparchive.task.ProgressTask;
@@ -16,6 +19,7 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -23,6 +27,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class ChapterListActivity extends ListActivity {
 	private long lpId;
@@ -98,14 +103,15 @@ public class ChapterListActivity extends ListActivity {
 		}
 
 		@Override
-		protected String doInBackground(Void... unused) {
+		protected RetCode doInBackground(Void... unused) {
 			try {
 				Document doc = Jsoup.connect(chaptersUrl).get();
 				Element e = doc.getElementById(CONTENT_ELEMENT);
 				// get all links matching "Update%20[N]/"
 				String links_to;
 				dh.getDb().beginTransaction();
-				dh.insertChapter(lpId, LPArchiveApplication.introURL, "Introduction");
+				dh.insertChapter(lpId, LPArchiveApplication.introURL,
+						"Introduction");
 				for (Element link : e.getElementsByTag("a")) {
 					links_to = link.attr("href");
 					if (links_to.startsWith(LINK_PREFIX)) {
@@ -114,16 +120,32 @@ public class ChapterListActivity extends ListActivity {
 				}
 				dh.getDb().setTransactionSuccessful();
 				dh.getDb().endTransaction();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
+			} catch(IOException e) {
 				e.printStackTrace();
+				return RetCode.FETCH_FAILED;
+			} catch(SQLException e) {
+				return RetCode.DB_ERROR;
 			}
-			return "done";
+			return RetCode.SUCCESS;
 		}
 
-		protected void onPostExecute(String result) {
+		protected void onPostExecute(RetCode result) {
 			super.onPostExecute(result);
-			populate();
+			switch (result) {
+			case FETCH_FAILED:
+				Toast.makeText(context,
+						context.getString(R.string.timeout_error),
+						Toast.LENGTH_LONG).show();
+				break;
+			case DB_ERROR:
+				Toast.makeText(context, context.getString(R.string.db_error),
+						Toast.LENGTH_LONG).show();
+				break;
+			case SUCCESS:
+				populate();
+				break;
+			default:break;
+			}
 		}
 	}
 }

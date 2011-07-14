@@ -11,6 +11,7 @@ import java.net.URL;
 import org.ags.lparchive.DataHelper;
 import org.ags.lparchive.LPArchiveApplication;
 import org.ags.lparchive.R;
+import org.ags.lparchive.RetCode;
 import org.jsoup.nodes.Element;
 
 import android.app.ProgressDialog;
@@ -44,10 +45,10 @@ public class DownloadLPTask extends ProgressTask {
 	}
 
 	@Override
-	protected String doInBackground(Void... unused) {
+	protected RetCode doInBackground(Void... unused) {
 		String extState = Environment.getExternalStorageState();
 		if (!extState.equals(Environment.MEDIA_MOUNTED)) {
-			// toast
+			return RetCode.MEDIA_UNMOUNTED;
 		}
 
 		String sdcard_path = Environment.getExternalStorageDirectory().toString() + "/";
@@ -101,7 +102,7 @@ public class DownloadLPTask extends ProgressTask {
 				publishProgress((int) ((i++ / (float)max) * 100));
 			} while (cursor.moveToNext());
 		}
-		return "done";
+		return RetCode.SUCCESS;
 	}
 
 	public void downloadFromUrl(String imageURL, String fileName)
