@@ -27,7 +27,7 @@ public class ArchiveFetchTask extends ProgressTask {
 		Document doc = null;
 		try {
 			Log.d(TAG, "begin document fetch");
-			doc = Jsoup.connect(context.getString(R.string.base_url)).get();
+			doc = Jsoup.connect(LPArchiveApplication.baseURL).get();
 			Log.d(TAG, "retrieved document");
 		} catch (IOException e) {
 			Log.e(TAG, "failed to retrieve document");

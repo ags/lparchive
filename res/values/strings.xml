@@ -4,11 +4,12 @@
     <string name="app_name">Let\'s Play! Archive</string>
     <string name="package_name">org.ags.lparchive</string>
     
-    <!-- URLs (make constants?) -->
+    <!-- URLs (make constants?) 
     <string name="donate_url">http://lparchive.org/donate</string>
     <string name="base_url">http://lparchive.org/</string>
     <string name="intro_url">/introduction</string>
-        
+    -->
+    
 	<!-- Labels -->
     <string name="latest_tab">Latest</string>
     <string name="archive_tab">Archive</string>

@@ -22,7 +22,7 @@ public class LPListActivity extends ListActivity {
 		// video formatting is inconsistent, so load as page
 		if(type.equals("video")) {
 			i = new Intent(this, ChapterPageActivity.class);
-			i.putExtra("page_url", getString(R.string.base_url) + lp.getUrl());
+			i.putExtra("page_url", LPArchiveApplication.baseURL + lp.getUrl());
 		} else {
 			i = new Intent(this, ChapterListActivity.class);
 			i.putExtra("lp_id", id);

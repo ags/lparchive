@@ -1,9 +1,11 @@
 package org.ags.lparchive;
 
+import org.ags.lparchive.model.Chapter;
 import org.ags.lparchive.task.PageFetchTask;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -11,34 +13,54 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 public class ChapterPageActivity extends PageActivity {
-	private String page_url;
-	private boolean isIntro, atFirst, atLast;
+	private Cursor cursor;
+	private String chaptersUrl;
+	private long lpId;
+	private int position;
+	private DataHelper dh;
 	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if (savedInstanceState == null) {
 			Bundle extras = getIntent().getExtras();
-			isIntro = extras.getBoolean("is_intro");
-			atFirst = extras.getBoolean("atFirst");
-			atLast = extras.getBoolean("atLast");
-			page_url = extras.getString("page_url");
+			chaptersUrl = extras.getString("chapters_url");
+			position = extras.getInt("position");
+			lpId = extras.getLong("lp_id");
+			
+			dh = ((LPArchiveApplication) getApplicationContext())
+					.getDataHelper();
+			
+			cursor = dh.getChapters(lpId);
+
 			loadPage();
 		}
 	}
 	
 	private void loadPage() {
-		new LoadPageFetchTask(this, page_url, isIntro).execute();
+		cursor.moveToPosition(position);
+		long id = cursor.getLong(0);
+		Chapter c = dh.getChapter(id);
+		boolean isIntro = c.isIntro();
+		String pageUrl = (isIntro) ? chaptersUrl : chaptersUrl + c.getUrl();
+		
+		new LoadPageFetchTask(this, pageUrl, isIntro).execute();
 	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.options_menu_chapter, menu);
-	    if(atFirst)
-	    	menu.getItem(0).setEnabled(false);
-	    if(atLast)
-	    	menu.getItem(1).setEnabled(false);
-	    return true;
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.options_menu_chapter, menu);
+
+		return true;
+	}
+	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		// enable/disable the previous/next buttons depending on chapter
+		menu.getItem(0).setEnabled(position != 0);
+		menu.getItem(1).setEnabled(cursor.getCount() - 1 != position);
+
+		return super.onPrepareOptionsMenu(menu);
 	}
 	
 	@Override
@@ -46,9 +68,13 @@ public class ChapterPageActivity extends PageActivity {
 	    switch (item.getItemId()) {
 	    case R.id.prev_chapter:
 	    	// load previous chapter
+	    	position--;
+	    	loadPage();
 	    	return true;
 	    case R.id.next_chapter:
 	    	// load next chapter
+	    	position++;
+	    	loadPage();
 	    	return true;
 	    case R.id.refresh_chapter:
 	    	// reload this chapter

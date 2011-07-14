@@ -6,7 +6,7 @@ public class DonatePageActivity extends PageActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 //		if (savedInstanceState == null) {
-			webview.loadUrl(getString(R.string.donate_url));
+			webview.loadUrl(LPArchiveApplication.donateURL);
 //		}
 	}
 }

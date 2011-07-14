@@ -51,8 +51,8 @@ public class DownloadLPTask extends ProgressTask {
 		}
 
 		String sdcard_path = Environment.getExternalStorageDirectory().toString() + "/";
-		String introUrl = context.getString(R.string.intro_url);
-		String baseUrl = context.getString(R.string.base_url);
+//		String introUrl = context.getString(R.string.intro_url);
+//		String baseUrl = context.getString(R.string.base_url);
 		String lpUrl = dh.getLP(lpId).getUrl();
 		String package_name = context.getString(R.string.package_name);
 		String chapterUrl, getUrl, diskUrl, imgSrc, imgOut;
@@ -62,9 +62,9 @@ public class DownloadLPTask extends ProgressTask {
 			do {
 				chapterUrl = cursor.getString(2);
 				
-				isIntro = chapterUrl.equals(introUrl);
+				isIntro = chapterUrl.equals(LPArchiveApplication.introURL);
 				diskUrl = sdcard_path + package_name + lpUrl;
-				getUrl = baseUrl + lpUrl;
+				getUrl = LPArchiveApplication.baseURL + lpUrl;
 				if(!isIntro) {
 					diskUrl += chapterUrl;
 					getUrl += chapterUrl;

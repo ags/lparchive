@@ -21,6 +21,7 @@ public class LPArchiveActivity extends TabActivity {
 		setContentView(R.layout.main);
 	}
 	
+	/* constructs the application tab layout */
 	public void createTabs() {
 		TabHost tabHost = getTabHost();
 		TabHost.TabSpec spec;

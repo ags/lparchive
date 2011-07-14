@@ -25,20 +25,20 @@ import android.view.View;
 import android.widget.ListView;
 
 public class ChapterListActivity extends ListActivity {
-	private long lp_id;
-	private String chapters_url;
+	private long lpId;
+	private String chaptersUrl;
 	private DataHelper dh;
 	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.lp_list);
-		this.dh = ((LPArchiveApplication)getApplicationContext()).getDataHelper();
+		dh = ((LPArchiveApplication)getApplicationContext()).getDataHelper();
 		Bundle extras = getIntent().getExtras();
 		
-		this.lp_id = extras.getLong("lp_id");
-		String url = dh.getLP(lp_id).getUrl();
-		chapters_url = getString(R.string.base_url) + url;
-		boolean inDb = dh.getChapters(lp_id).getCount() != 0;
+		lpId = extras.getLong("lp_id");
+		String url = dh.getLP(lpId).getUrl();
+		chaptersUrl = LPArchiveApplication.baseURL + url;
+		boolean inDb = dh.getChapters(lpId).getCount() != 0;
 		if(!inDb) {
 			Log.d("LPA", "NOT IN DB");
 			new ChapterFetchTask(this).execute();
@@ -48,21 +48,22 @@ public class ChapterListActivity extends ListActivity {
 		}
 	}
 	
+	/* retrieves a cursor for chapters and sets list adapter to use it */
 	private void populate() {
-		Cursor cursor = dh.getChapters(lp_id);
-		setListAdapter(new ChapterAdapter(ChapterListActivity.this, cursor));
+		Cursor chapterCursor = dh.getChapters(lpId);
+		setListAdapter(new ChapterAdapter(ChapterListActivity.this,
+				chapterCursor));
 	}
 	
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
 		Intent i = new Intent(this, ChapterPageActivity.class);
-		String url = dh.getChapter(id).getUrl();
-		boolean is_intro = url.equals(getString(R.string.intro_url));
-		i.putExtra("is_intro", is_intro);
-		i.putExtra("atFirst", 0 == position);
-		i.putExtra("atLast", l.getCount()-1 == position);
-		i.putExtra("page_url", (is_intro) ? chapters_url : chapters_url + url);
+	
+		i.putExtra("chapters_url", chaptersUrl);
+		i.putExtra("position", position);
+		i.putExtra("lp_id", lpId);
+		
 		startActivity(i);
 	}
 	
@@ -78,7 +79,7 @@ public class ChapterListActivity extends ListActivity {
 	    // Handle item selection
 	    switch (item.getItemId()) {
 	    case R.id.download_lp:
-	    	new DownloadLPTask(this, lp_id).execute();
+	    	new DownloadLPTask(this, lpId).execute();
 	        return true;
 	    case R.id.preferences:
 	    	startActivity(new Intent(this, Preferences.class));
@@ -99,16 +100,16 @@ public class ChapterListActivity extends ListActivity {
 		@Override
 		protected String doInBackground(Void... unused) {
 			try {
-				Document doc = Jsoup.connect(chapters_url).get();
+				Document doc = Jsoup.connect(chaptersUrl).get();
 				Element e = doc.getElementById(CONTENT_ELEMENT);
 				// get all links matching "Update%20[N]/"
 				String links_to;
 				dh.getDb().beginTransaction();
-				dh.insertChapter(lp_id, getString(R.string.intro_url), "Introduction");
+				dh.insertChapter(lpId, LPArchiveApplication.introURL, "Introduction");
 				for (Element link : e.getElementsByTag("a")) {
 					links_to = link.attr("href");
 					if (links_to.startsWith(LINK_PREFIX)) {
-						dh.insertChapter(lp_id, links_to, link.text());
+						dh.insertChapter(lpId, links_to, link.text());
 					}
 				}
 				dh.getDb().setTransactionSuccessful();

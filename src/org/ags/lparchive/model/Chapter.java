@@ -1,5 +1,7 @@
 package org.ags.lparchive.model;
 
+import org.ags.lparchive.LPArchiveApplication;
+
 public class Chapter {
 	private String url;
 	private String title;
@@ -18,4 +20,7 @@ public class Chapter {
 		return title;
 	}
 
+	public boolean isIntro() {
+		return url.equals(LPArchiveApplication.introURL);
+	}
 }

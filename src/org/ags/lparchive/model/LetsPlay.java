@@ -104,7 +104,7 @@ public class LetsPlay implements Serializable {
 	public int getId() {
 		return id;
 	}
-	
+		
 	public static int getIconResource(String type) {
 		if (type.equals("text"))
 			return R.drawable.icon_text;
@@ -117,4 +117,5 @@ public class LetsPlay implements Serializable {
 		else
 			return R.drawable.icon;
 	}
+
 }
