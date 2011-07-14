@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu
-  xmlns:android="http://schemas.android.com/apk/res/android">
-        <item android:id="@+id/refresh_chapter"
-          android:title="@string/refresh_chapter" />
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item android:id="@+id/prev_chapter" 
+		android:title="@string/prev_chapter" 
+		android:icon="@drawable/ic_menu_back" />
+	
+	<item android:id="@+id/next_chapter" 
+		android:title="@string/next_chapter" 
+		android:icon="@drawable/ic_menu_forward" />
+	
+	<item android:id="@+id/refresh_chapter" 
+		android:title="@string/refresh" 
+		android:icon="@drawable/ic_menu_refresh" />
+	
+	<item android:id="@+id/preferences" 
+		android:title="@string/prefs_activity"
+		android:icon="@drawable/ic_menu_preferences" />
 </menu>

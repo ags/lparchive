@@ -60,6 +60,8 @@ public class ChapterListActivity extends ListActivity {
 		String url = dh.getChapter(id).getUrl();
 		boolean is_intro = url.equals(getString(R.string.intro_url));
 		i.putExtra("is_intro", is_intro);
+		i.putExtra("atFirst", 0 == position);
+		i.putExtra("atLast", l.getCount()-1 == position);
 		i.putExtra("page_url", (is_intro) ? chapters_url : chapters_url + url);
 		startActivity(i);
 	}
@@ -78,8 +80,8 @@ public class ChapterListActivity extends ListActivity {
 	    case R.id.download_lp:
 	    	new DownloadLPTask(this, lp_id).execute();
 	        return true;
-	    case R.id.prefs:
-	    	 startActivity(new Intent(this, Preferences.class));
+	    case R.id.preferences:
+	    	startActivity(new Intent(this, Preferences.class));
 	    	return true;
 	    default:
 	        return super.onOptionsItemSelected(item);

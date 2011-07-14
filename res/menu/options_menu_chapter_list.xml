@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu
-  xmlns:android="http://schemas.android.com/apk/res/android">
-  
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/download_lp"
-          android:title="@string/download_lp" />
-    <item android:id="@+id/prefs"
-          android:title="@string/prefs_activity" />
+       	android:title="@string/download_lp" 
+       	android:icon="@drawable/ic_menu_save" />
+          
+	<item android:id="@+id/preferences" 
+		android:title="@string/prefs_activity"
+		android:icon="@drawable/ic_menu_preferences" />
 </menu>

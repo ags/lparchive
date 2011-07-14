@@ -28,23 +28,23 @@ public class LPArchiveActivity extends TabActivity {
 
 		intent = new Intent().setClass(this, LatestListActivity.class);
 		spec = tabHost.newTabSpec("latest").setIndicator(
-				getString(R.string.latest_tab), 
-				getResources().getDrawable(
-						R.drawable.ic_tab_latest)).setContent(intent);
+				getString(R.string.latest_tab),
+				getResources().getDrawable(R.drawable.ic_tab_latest))
+				.setContent(intent);
 		tabHost.addTab(spec);
 
 		intent = new Intent().setClass(this, ArchiveListActivity.class);
 		spec = tabHost.newTabSpec("archive").setIndicator(
-				getString(R.string.archive_tab), 
-				getResources().getDrawable(
-						R.drawable.ic_tab_archive)).setContent(intent);
+				getString(R.string.archive_tab),
+				getResources().getDrawable(R.drawable.ic_tab_archive))
+				.setContent(intent);
 		tabHost.addTab(spec);
-		
+
 		intent = new Intent(this, DonatePageActivity.class);
 		spec = tabHost.newTabSpec("donate").setIndicator(
-				getString(R.string.donate_tab), 
-				getResources().getDrawable(
-						R.drawable.ic_tab_donate)).setContent(intent);
+				getString(R.string.donate_tab),
+				getResources().getDrawable(R.drawable.ic_tab_donate))
+				.setContent(intent);
 		tabHost.addTab(spec);
 		
 		tabHost.setCurrentTab(0);
@@ -74,7 +74,7 @@ public class LPArchiveActivity extends TabActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    // Handle item selection
 	    switch (item.getItemId()) {
-	    case R.id.prefs:
+	    case R.id.preferences:
 	    	startActivity(new Intent(this, Preferences.class));
 	    	return true;
 	    default:

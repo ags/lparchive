@@ -1,22 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<!-- App Stuff -->
     <string name="app_name">Let\'s Play! Archive</string>
     <string name="package_name">org.ags.lparchive</string>
-    <string name="fetching_wait">Fetching, please wait...</string>
-    <string name="latest_tab">Latest</string>
-    <string name="archive_tab">Archive</string>
-    <string name="donate_tab">Donate</string>
-    <string name="empty_list">No entries found.</string>
-    <string name="search_box_default">search</string>
-    <string name="download_lp">Download</string>
+    
+    <!-- URLs (make constants?) -->
     <string name="donate_url">http://lparchive.org/donate</string>
     <string name="base_url">http://lparchive.org/</string>
     <string name="intro_url">/introduction</string>
-    
-    <string name="prefs_activity">Preferences</string>
+        
+	<!-- Labels -->
+    <string name="latest_tab">Latest</string>
+    <string name="archive_tab">Archive</string>
+    <string name="donate_tab">Donate</string>
+    <string name="prefs_activity">Settings</string>
+    <string name="refresh">Refresh</string>
+    <string name="prev_chapter">Previous</string>
+    <string name="next_chapter">Next</string>
+    <string name="download_lp">Download</string>
+    <string name="search_hint">Search let\'s plays</string>
+     
+    <!-- Preferences -->
     <string name="dark_theme_title">Dark Theme</string>
     <string name="dark_theme_pref_summary">Use a dark theme when viewing pages</string>
-    <string name="refresh_chapter">Refresh</string>
+    
+    <!-- Messages -->
+    <string name="empty_list">No entries found.</string>
+    <string name="fetching_wait">Fetching, please wait...</string>
     <string name="timeout_error">Request timed out, please refresh or check your connection.</string>
-    <string name="search_hint">Search let\'s plays</string>
+
 </resources>
