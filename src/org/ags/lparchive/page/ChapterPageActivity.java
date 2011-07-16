@@ -1,5 +1,9 @@
-package org.ags.lparchive;
+package org.ags.lparchive.page;
 
+import org.ags.lparchive.DataHelper;
+import org.ags.lparchive.LPArchiveApplication;
+import org.ags.lparchive.R;
+import org.ags.lparchive.RetCode;
 import org.ags.lparchive.model.Chapter;
 import org.ags.lparchive.task.PageFetchTask;
 
@@ -45,7 +49,7 @@ public class ChapterPageActivity extends PageActivity {
 		}
 	}
 	
-	private void loadPage() {
+	protected void loadPage() {
 		if (cursor.moveToPosition(position)) {
 			long id = cursor.getLong(0);
 			Chapter c = dh.getChapter(id);
@@ -61,8 +65,7 @@ public class ChapterPageActivity extends PageActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.options_menu_chapter, menu);
-
+		inflater.inflate(R.menu.options_menu_page_chapter, menu);
 		return true;
 	}
 	
@@ -78,6 +81,9 @@ public class ChapterPageActivity extends PageActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
+	    case R.id.refresh_page:
+	    	loadPage();
+	    	return true;
 	    case R.id.prev_chapter:
 	    	// load previous chapter
 	    	position--;
@@ -88,21 +94,9 @@ public class ChapterPageActivity extends PageActivity {
 	    	position++;
 	    	loadPage();
 	    	return true;
-	    case R.id.refresh_chapter:
-	    	// reload this chapter
-	    	loadPage();
-	    	return true;
-	    case R.id.preferences:
-	    	// display preferences
-	    	startActivity(new Intent(this, Preferences.class));
-	    	return true;
 	    default:
 	        return super.onOptionsItemSelected(item);
 	    }
-	}
-	
-	protected void onSaveInstanceState(Bundle outState) {
-		webview.saveState(outState);
 	}
 
 	class LoadPageFetchTask extends PageFetchTask {

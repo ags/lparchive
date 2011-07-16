@@ -6,8 +6,8 @@ import android.content.SharedPreferences;
 public class LPArchiveApplication extends Application {
 	private DataHelper dataHelper;
 	private SharedPreferences mPrefs;
-    
-    public static final String donateURL = "http://lparchive.org/donate";
+	
+	public static final String donateURL = "http://lparchive.org/donate";
     public static final String baseURL = "http://lparchive.org";
   	public static final String introURL = "/introduction";
     

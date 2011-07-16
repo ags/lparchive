@@ -4,11 +4,11 @@ import java.io.IOException;
 
 import org.ags.lparchive.DataHelper;
 import org.ags.lparchive.LPArchiveApplication;
-import org.ags.lparchive.ChapterPageActivity;
 import org.ags.lparchive.Preferences;
 import org.ags.lparchive.R;
 import org.ags.lparchive.RetCode;
 import org.ags.lparchive.list.adapter.ChapterAdapter;
+import org.ags.lparchive.page.ChapterPageActivity;
 import org.ags.lparchive.task.DownloadLPTask;
 import org.ags.lparchive.task.ProgressTask;
 import org.jsoup.Jsoup;
@@ -34,13 +34,19 @@ public class ChapterListActivity extends ListActivity {
 	private String chaptersUrl;
 	private DataHelper dh;
 	
+	public static Intent newInstance(Context context, long lpId) {
+		Intent i = new Intent(context, ChapterListActivity.class);
+		i.putExtra("lpId", lpId);
+		return i;
+	}
+	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.lp_list);
 		dh = ((LPArchiveApplication)getApplicationContext()).getDataHelper();
 		Bundle extras = getIntent().getExtras();
 		
-		lpId = extras.getLong("lp_id");
+		lpId = extras.getLong("lpId");
 		String url = dh.getLP(lpId).getUrl();
 		chaptersUrl = LPArchiveApplication.baseURL + url;
 		boolean inDb = dh.getChapters(lpId).getCount() != 0;

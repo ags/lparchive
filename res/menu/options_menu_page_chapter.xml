@@ -8,7 +8,7 @@
 		android:title="@string/next_chapter" 
 		android:icon="@drawable/ic_menu_forward" />
 	
-	<item android:id="@+id/refresh_chapter" 
+	<item android:id="@+id/refresh_page" 
 		android:title="@string/refresh" 
 		android:icon="@drawable/ic_menu_refresh" />
 	

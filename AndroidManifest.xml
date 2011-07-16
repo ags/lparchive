@@ -30,13 +30,14 @@
                    		android:resource="@xml/searchable"/>
 		</activity>
 		<activity android:name=".list.LPListActivity"></activity>
-
 		
-		<activity android:name=".ChapterPageActivity" android:configChanges="orientation"></activity>
+		<activity android:name=".page.PageActivity" android:configChanges="orientation"></activity>
+		<activity android:name=".page.ChapterPageActivity" android:configChanges="orientation"></activity>
+		<activity android:name=".page.SimplePageActivity" android:configChanges="orientation"></activity>
+		<activity android:name=".page.DonatePageActivity"></activity>
+		
 		<activity android:name=".Preferences" android:label="@string/prefs_activity"></activity>
-		<activity android:name=".PageActivity"></activity>
-		<activity android:name=".DonatePageActivity"></activity>
-		
+				
 		<provider android:name=".LPSuggestionProvider"
               android:authorities="org.ags.lparchive.LPSuggestionProvider" />
     </application>

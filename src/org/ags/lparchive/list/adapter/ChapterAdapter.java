@@ -12,13 +12,14 @@ import android.widget.CursorAdapter;
 import android.widget.TextView;
 
 public class ChapterAdapter extends CursorAdapter {
-//	private Context context;
 
 	public ChapterAdapter(Context context, Cursor cursor) {
 		super(context, cursor);
-//		this.context = context;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(
@@ -27,6 +28,9 @@ public class ChapterAdapter extends CursorAdapter {
 		return v;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void bindView(View view, Context context, Cursor cursor) {
 		String title = cursor.getString(cursor.getColumnIndex(

@@ -3,6 +3,7 @@ package org.ags.lparchive;
 import org.ags.lparchive.list.ArchiveListActivity;
 import org.ags.lparchive.list.LPListActivity;
 import org.ags.lparchive.list.LatestListActivity;
+import org.ags.lparchive.page.DonatePageActivity;
 import org.ags.lparchive.task.ArchiveFetchTask;
 
 import android.app.AlertDialog;
@@ -31,14 +32,14 @@ public class LPArchiveActivity extends TabActivity {
 		TabHost.TabSpec spec;
 		Intent intent;
 
-		intent = new Intent().setClass(this, LatestListActivity.class);
+		intent = new Intent(this, LatestListActivity.class);
 		spec = tabHost.newTabSpec("latest").setIndicator(
 				getString(R.string.latest_tab),
 				getResources().getDrawable(R.drawable.ic_tab_latest))
 				.setContent(intent);
 		tabHost.addTab(spec);
 
-		intent = new Intent().setClass(this, ArchiveListActivity.class);
+		intent = new Intent(this, ArchiveListActivity.class);
 		spec = tabHost.newTabSpec("archive").setIndicator(
 				getString(R.string.archive_tab),
 				getResources().getDrawable(R.drawable.ic_tab_archive))

@@ -1,9 +1,9 @@
 package org.ags.lparchive.list;
 
-import org.ags.lparchive.ChapterPageActivity;
 import org.ags.lparchive.DataHelper;
 import org.ags.lparchive.LPArchiveApplication;
 import org.ags.lparchive.model.LetsPlay;
+import org.ags.lparchive.page.SimplePageActivity;
 
 import android.app.ListActivity;
 import android.content.Intent;
@@ -21,11 +21,10 @@ public abstract class LPListActivity extends ListActivity {
 		// video formatting is inconsistent, so load as page
 		// TODO hybrid category
 		if(type.equals("video")) {
-			i = new Intent(this, ChapterPageActivity.class);
-			i.putExtra("page_url", LPArchiveApplication.baseURL + lp.getUrl());
+			String pageUrl = LPArchiveApplication.baseURL + lp.getUrl();
+			i = SimplePageActivity.newInstance(this, pageUrl);
 		} else {
-			i = new Intent(this, ChapterListActivity.class);
-			i.putExtra("lp_id", id);
+			i = ChapterListActivity.newInstance(this, id);
 		}
 		startActivity(i);
 	}
