@@ -28,7 +28,7 @@
     
     <!-- LP tags -->
     <string-array name="lp_tags">
-    	<item>None</item>
+    	<item>All</item>
         <item>Challenges</item>
 		<item>Co-op</item>
 		<item>Completionist</item>

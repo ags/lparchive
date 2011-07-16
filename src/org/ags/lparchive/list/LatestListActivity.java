@@ -39,17 +39,5 @@ public class LatestListActivity extends LPListActivity {
 		
 		setListAdapter(new LPAdapter(this, cursor));
 	}
-
-//	@Override
-//	public void doNegativeClick() {
-//		// TODO Auto-generated method stub
-//		
-//	}
-
-	@Override
-	public void doPositiveClick(int checked) {
-		// TODO Auto-generated method stub
-		
-	}
 	
 }

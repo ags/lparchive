@@ -21,7 +21,7 @@ public class ArchiveListActivity extends LPListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.lp_list);
-		// enable fast scrolling as the archive list may be long
+		// enable fast scrolling for the long archive list
 		getListView().setFastScrollEnabled(true);
 		
 		Cursor cursor = null;
@@ -43,14 +43,7 @@ public class ArchiveListActivity extends LPListActivity {
 		setListAdapter(new LPAdapter(this, cursor));
 	}
 
-//	@Override
-//	public void doNegativeClick() {
-//		// TODO Auto-generated method stub
-//		
-//	}
-
-	@Override
-	public void doPositiveClick(int checked) {
+	public void tagFilter(int checked) {
 		Cursor cursor = null;
 		if(checked == 0) {
 			cursor = dh.getArchive();

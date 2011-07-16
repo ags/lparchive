@@ -1,7 +1,6 @@
 package org.ags.lparchive;
 
 import org.ags.lparchive.list.ArchiveListActivity;
-import org.ags.lparchive.list.LPListActivity;
 import org.ags.lparchive.list.LatestListActivity;
 import org.ags.lparchive.page.DonatePageActivity;
 import org.ags.lparchive.task.ArchiveFetchTask;
@@ -10,6 +9,7 @@ import android.app.AlertDialog;
 import android.app.TabActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -97,17 +97,18 @@ public class LPArchiveActivity extends TabActivity {
 	}
 	
 	private AlertDialog createTagDialog() {
-		return new AlertDialog.Builder(getCurrentActivity())
+		final ArchiveListActivity act = (ArchiveListActivity) 
+			getCurrentActivity();
+		return new AlertDialog.Builder(act)
         .setTitle(getString(R.string.tag_dialog_title))
-        .setSingleChoiceItems(R.array.lp_tags, tagMenuSelected, null)
-        .setPositiveButton(R.string.tag_dialog_confirm,
-            new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-								tagMenuSelected = ((AlertDialog) dialog)
-										.getListView().getCheckedItemPosition();
-                    ((LPListActivity)getCurrentActivity()).doPositiveClick(tagMenuSelected);
-                }
-            })
+        .setSingleChoiceItems(R.array.lp_tags, tagMenuSelected, new OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				tagMenuSelected = which;
+				act.tagFilter(tagMenuSelected);
+				dialog.dismiss();
+			}
+		})
         .setNegativeButton(R.string.tag_dialog_cancel, null)
         .create();
 	}

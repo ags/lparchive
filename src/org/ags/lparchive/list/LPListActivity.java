@@ -28,8 +28,5 @@ public abstract class LPListActivity extends ListActivity {
 		}
 		startActivity(i);
 	}
-	
-	public abstract void doPositiveClick(int id);
 
-//	public abstract void doNegativeClick();
 }
