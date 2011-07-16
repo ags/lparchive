@@ -19,8 +19,9 @@ public abstract class PageFetchTask extends ProgressTask {
 
 	private static final String CONTENT_ELEMENT = "content";
 	private static final String TOC_TEXT = "Table of Contents";
+	private static final String EMPTY_PAGE = "EMPTY PAGE";
 	
-	// TODO read in from assets
+	// TODO read in from assets?
 	private static final String CSS = "<style type=\"text/css\">" +
 	"* { font-family: Verdana, Arial, sans-serif; }" +
 	"a { color: #a62625; font-weight: bold; text-decoration: none; border-bottom: 1px dotted #a62625; }" +
@@ -77,7 +78,7 @@ public abstract class PageFetchTask extends ProgressTask {
 			LPArchiveApplication lpaa) throws IOException {
 		SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(lpaa);
-		boolean darkTheme = prefs.getBoolean("darkThemePref", false);
+		boolean darkTheme = prefs.getBoolean("darkThemePref", true);
 		boolean inDb = false;
 		if (inDb) {
 			// get path from db
@@ -94,11 +95,15 @@ public abstract class PageFetchTask extends ProgressTask {
 					if (TOC_TEXT.equals(e.text()))
 						e.remove();
 				}
-				// TODO if empty, add message saying so (or check intros when getting chapter list)
 			}
 
 			Element content = doc.getElementById(CONTENT_ELEMENT);
+			// if there's nothing here, say so
+//			Log.d("LPA", "CONTENT: " + content.text());
+			if(content.text().isEmpty())
+				content.append(EMPTY_PAGE);
 			
+			// apply site CSS to improve readability
 			content.prepend(CSS);
 			if (darkTheme)
 				content.prepend(CSS_DARK);

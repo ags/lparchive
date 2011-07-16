@@ -10,7 +10,7 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.ListView;
 
-public class LPListActivity extends ListActivity {
+public abstract class LPListActivity extends ListActivity {
 	
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
@@ -29,4 +29,8 @@ public class LPListActivity extends ListActivity {
 		}
 		startActivity(i);
 	}
+	
+	public abstract void doPositiveClick(int id);
+
+//	public abstract void doNegativeClick();
 }

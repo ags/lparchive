@@ -13,6 +13,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
 		<activity android:name=".list.ArchiveListActivity">
 			<intent-filter>
             	<action android:name="android.intent.action.SEARCH" />
@@ -21,12 +22,21 @@
                    		android:resource="@xml/searchable"/>
 		</activity>
 		<activity android:name=".list.ChapterListActivity"></activity>
-		<activity android:name=".list.LatestListActivity"></activity>
+		<activity android:name=".list.LatestListActivity">
+			<intent-filter>
+            	<action android:name="android.intent.action.SEARCH" />
+        	</intent-filter>
+        	<meta-data android:name="android.app.searchable"
+                   		android:resource="@xml/searchable"/>
+		</activity>
 		<activity android:name=".list.LPListActivity"></activity>
+
+		
 		<activity android:name=".ChapterPageActivity" android:configChanges="orientation"></activity>
 		<activity android:name=".Preferences" android:label="@string/prefs_activity"></activity>
 		<activity android:name=".PageActivity"></activity>
 		<activity android:name=".DonatePageActivity"></activity>
+		
 		<provider android:name=".LPSuggestionProvider"
               android:authorities="org.ags.lparchive.LPSuggestionProvider" />
     </application>

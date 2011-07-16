@@ -19,8 +19,32 @@
     <string name="prev_chapter">Previous</string>
     <string name="next_chapter">Next</string>
     <string name="download_lp">Download</string>
+    <string name="tag_filter">By Tag</string>
+    <string name="search">Search</string>
     <string name="search_hint">Search let\'s plays</string>
-     
+    <string name="tag_dialog_title">Search by tag</string>
+    <string name="tag_dialog_confirm">Search</string>
+    <string name="tag_dialog_cancel">Cancel</string>
+    
+    <!-- LP tags -->
+    <string-array name="lp_tags">
+    	<item>None</item>
+        <item>Challenges</item>
+		<item>Co-op</item>
+		<item>Completionist</item>
+		<item>Dual Audio</item>
+		<item>Group</item>
+		<item>Humorous</item>
+		<item>Hybrid</item>
+		<item>Informative</item>
+		<item>Narrative</item>
+		<item>Screenshot</item>
+		<item>Subtitles</item>
+		<item>Text</item>
+		<item>Video</item>
+		<item>Voice</item>
+    </string-array>
+    
     <!-- Preferences -->
     <string name="dark_theme_title">Dark Theme</string>
     <string name="dark_theme_pref_summary">Use a dark theme when viewing pages</string>

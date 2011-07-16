@@ -44,9 +44,9 @@ public class DataHelper {
 	private SQLiteDatabase db;
 
 	private SQLiteStatement insertLpStmnt;
-	private static final String INSERT_LP = String.format("insert into %s"
-			+ "(%s, %s, %s, %s) values (?, ?, ?, ?)", ARCHIVE_TABLE,
-			KEY_GAME, KEY_AUTHOR, KEY_URL, KEY_TYPE);
+	private static final String INSERT_LP = String.format("insert into " +
+			" %s (%s, %s, %s, %s) values (?, ?, ?, ?)", 
+			ARCHIVE_TABLE, KEY_GAME, KEY_AUTHOR, KEY_URL, KEY_TYPE);
 
 	private SQLiteStatement insertTagStmnt;
 	private static final String INSERT_TAG = String.format("insert into %s"
@@ -59,11 +59,22 @@ public class DataHelper {
 	
 	private SQLiteStatement latestLpStmnt;
 	private static final String LATEST_LP = String.format(
-			"insert into %s (%s) values (?)", LATEST_TABLE, KEY_LATEST_ID);
+			"insert or replace into %s (%s) values (?)", 
+			LATEST_TABLE, KEY_LATEST_ID);
 	
 	private static final String RECENT_JOIN = "SELECT archive._id, archive.game, " +
 			"archive.author, archive.url, archive.type FROM archive, latest " +
 			"WHERE (archive._id = latest.lp_id) ORDER BY game asc";
+	
+	private static final String RECENT_JOIN_FILTERED = "SELECT archive._id, " +
+			"archive.game, archive.author, archive.url, archive.type FROM " +
+			"archive, latest WHERE (archive._id = latest.lp_id) AND " +
+			"archive.game LIKE ? ORDER BY game asc";
+	
+	private static final String TAG_SEARCH = "SELECT archive._id, archive.game," +
+			" archive.author, archive.url, archive.type, tags.tag" +
+			" FROM archive, tags WHERE archive._id = tags.lp_id AND" +
+			" tags.tag = ? GROUP BY archive._id ORDER BY game asc"; 
 	
 	public DataHelper(Context context) {
 		this.context = context;
@@ -174,6 +185,16 @@ public class DataHelper {
         return db.query(DataHelper.ARCHIVE_TABLE, DataHelper.projectArchive,
         		DataHelper.KEY_GAME + " LIKE ?", args, null, null, 
         				DataHelper.SORT_GAME_ASC);
+	}
+	
+	public Cursor lpLatestNameSearch(String name) {
+        String[] args = new String[] { "%" + name + "%"};
+		return db.rawQuery(RECENT_JOIN_FILTERED, args);
+	}
+	
+	public Cursor tagSearch(String tag) {
+		String[] args = new String[] { tag };
+		return db.rawQuery(TAG_SEARCH, args);	
 	}
 	
 	private static class OpenHelper extends SQLiteOpenHelper {

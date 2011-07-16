@@ -1,10 +1,13 @@
 package org.ags.lparchive;
 
 import org.ags.lparchive.list.ArchiveListActivity;
+import org.ags.lparchive.list.LPListActivity;
 import org.ags.lparchive.list.LatestListActivity;
 import org.ags.lparchive.task.ArchiveFetchTask;
 
+import android.app.AlertDialog;
 import android.app.TabActivity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,7 +17,8 @@ import android.view.MenuItem;
 import android.widget.TabHost;
 
 public class LPArchiveActivity extends TabActivity {
-
+	private int tagMenuSelected = 0;
+	
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
@@ -75,11 +79,35 @@ public class LPArchiveActivity extends TabActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    // Handle item selection
 	    switch (item.getItemId()) {
+	    case R.id.search_archive:
+	    	getTabHost().setCurrentTab(1);
+	    	getCurrentActivity().onSearchRequested();
+	    	return true;
+	    case R.id.tag_filter:
+	    	getTabHost().setCurrentTab(1);
+	    	createTagDialog().show();
+	    	return true;
 	    case R.id.preferences:
 	    	startActivity(new Intent(this, Preferences.class));
 	    	return true;
 	    default:
 	        return super.onOptionsItemSelected(item);
 	    }
+	}
+	
+	private AlertDialog createTagDialog() {
+		return new AlertDialog.Builder(getCurrentActivity())
+        .setTitle(getString(R.string.tag_dialog_title))
+        .setSingleChoiceItems(R.array.lp_tags, tagMenuSelected, null)
+        .setPositiveButton(R.string.tag_dialog_confirm,
+            new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+								tagMenuSelected = ((AlertDialog) dialog)
+										.getListView().getCheckedItemPosition();
+                    ((LPListActivity)getCurrentActivity()).doPositiveClick(tagMenuSelected);
+                }
+            })
+        .setNegativeButton(R.string.tag_dialog_cancel, null)
+        .create();
 	}
 }

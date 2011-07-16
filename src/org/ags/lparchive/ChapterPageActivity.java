@@ -4,6 +4,7 @@ import org.ags.lparchive.model.Chapter;
 import org.ags.lparchive.task.PageFetchTask;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -19,13 +20,21 @@ public class ChapterPageActivity extends PageActivity {
 	private int position;
 	private DataHelper dh;
 	
+	public static Intent newInstance(Context context, String chaptersUrl, long lpId, int position) {
+		Intent i = new Intent(context, ChapterPageActivity.class);
+        i.putExtra("chaptersUrl", chaptersUrl);
+        i.putExtra("position", position);
+        i.putExtra("lpId", lpId);
+        return i;
+    }
+	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if (savedInstanceState == null) {
 			Bundle extras = getIntent().getExtras();
-			chaptersUrl = extras.getString("chapters_url");
+			chaptersUrl = extras.getString("chaptersUrl");
 			position = extras.getInt("position");
-			lpId = extras.getLong("lp_id");
+			lpId = extras.getLong("lpId");
 			
 			dh = ((LPArchiveApplication) getApplicationContext())
 					.getDataHelper();
@@ -104,7 +113,7 @@ public class ChapterPageActivity extends PageActivity {
 		protected void onPostExecute(RetCode result) {
 			super.onPostExecute(result);
 			if (result.equals(RetCode.SUCCESS)) {
-				Log.d("LPA", "html: " + html);
+//				Log.d("LPA", "html: " + html);
 				webview.loadDataWithBaseURL(url, html, "text/html", "utf-8",
 						null);
 			}

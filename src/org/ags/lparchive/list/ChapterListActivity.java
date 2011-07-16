@@ -63,12 +63,8 @@ public class ChapterListActivity extends ListActivity {
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
-		Intent i = new Intent(this, ChapterPageActivity.class);
-	
-		i.putExtra("chapters_url", chaptersUrl);
-		i.putExtra("position", position);
-		i.putExtra("lp_id", lpId);
-		
+		Intent i = ChapterPageActivity.newInstance(this, chaptersUrl, lpId,
+				position);
 		startActivity(i);
 	}
 	
