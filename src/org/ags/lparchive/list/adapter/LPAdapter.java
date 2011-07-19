@@ -35,17 +35,17 @@ public class LPAdapter extends CursorAdapter {
 	@Override
 	public void bindView(View view, Context context, Cursor cursor) {
 		String game = cursor.getString(cursor.getColumnIndex(
-				DataHelper.KEY_GAME));
+				DataHelper.KEY_ARCHIVE_GAME));
 		TextView tGame = (TextView) view.findViewById(R.id.game);
 		tGame.setText(game);
 
 		String author = cursor.getString(cursor.getColumnIndex(
-				DataHelper.KEY_AUTHOR));
+				DataHelper.KEY_ARCHIVE_AUTHOR));
 		TextView tAuthor = (TextView) view.findViewById(R.id.author);
 		tAuthor.setText(author);
 
 		String type = cursor.getString(cursor.getColumnIndex(
-				DataHelper.KEY_TYPE));
+				DataHelper.KEY_ARCHIVE_TYPE));
 		ImageView icon = (ImageView) view.findViewById(R.id.icon);
 		icon.setImageResource(LetsPlay.getIconResource(type));
 	}

@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
@@ -23,54 +24,85 @@ import android.widget.ListView;
 
 public class LPListActivity extends ListActivity  {
 	private static final String TAG = "LPListActivity";
-	private DataHelper dh;
 	private static final int MENU_ITEM_VIEW = 0;
 	private static final int MENU_ITEM_TOGGLE_FAV = 1;
 	
+	// TODO comment explaining this 
+	private static boolean isDirty;
+	
+	private DataHelper dh;
+	private String action;
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.lp_list);
-		// enable fast scrolling for the long archive list
-		getListView().setFastScrollEnabled(true);
-		
+		isDirty = false;
 		Cursor cursor = null;
 		LPArchiveApplication appState = ((LPArchiveApplication) getApplicationContext());
 		dh = appState.getDataHelper();
-		final Intent intent = getIntent();
-		final String action = intent.getAction();
+		Intent intent = getIntent();
+		action = intent.getAction();
 		
 		// search archive by game name
 		if (Intent.ACTION_SEARCH.equals(action)) {
 			String query = intent.getStringExtra(SearchManager.QUERY);
 	        SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
 	        		LPSuggestionProvider.AUTHORITY, LPSuggestionProvider.MODE);
+	        // remember the users queries
 	        suggestions.saveRecentQuery(query, null);
 			cursor = dh.lpNameSearch(query);
-		// display whole archive
+		// show latest LPs
 		} else if (LPArchiveApplication.LATEST_LIST_ACTION.equals(action)) {
 			cursor = dh.getLatestLPs();
+		// show favourite LPs
 		} else if (LPArchiveApplication.FAVORITE_LIST_ACTION.equals(action)) {
-			Log.d("LPA", "intenting fav");
 			cursor = dh.getFavoriteLPs();
+		// show all LPs
 		} else {
 			cursor = dh.getArchive();
+			// enable fast scrolling - this is a long list
+			getListView().setFastScrollEnabled(true);
 		}
 		
-		setListAdapter(new LPAdapter(this, cursor));
-//		getListView().setFocusable(true);
-//		getListView().setOnCreateContextMenuListener(this);
+		// allow context menu (long click) on LPs
 		registerForContextMenu(getListView());
-	}
 		
+		// populate the listview
+		setListAdapter(new LPAdapter(this, cursor));
+	}
+
+	@Override
+	protected void onResume() {
+		Log.d(TAG, "RESUME " + action);
+		if(isDirty && LPArchiveApplication.FAVORITE_LIST_ACTION.equals(action)) {
+			setListAdapter(new LPAdapter(this, dh.getFavoriteLPs()));
+			isDirty = false;
+		}
+		super.onResume();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
-		startActivity(getListClickIntent(id));
+		startActivity(getLPViewIntent(id));
 	}
-	
-	protected Intent getListClickIntent(long id) {
-		DataHelper dh = ((LPArchiveApplication)getApplicationContext()).getDataHelper();
+
+	/**
+	 * Returns an Intent to view a LP based on its type.
+	 * 
+	 * @param id
+	 *            The ID of the LP to view.
+	 * @return The constructed intent.
+	 */
+	private Intent getLPViewIntent(long id) {
 		LetsPlay lp = dh.getLP(id);
 		String type = lp.getType();
 		// video formatting is inconsistent, so load as page
@@ -83,41 +115,84 @@ public class LPListActivity extends ListActivity  {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
-		Log.d(TAG, "context create");
-		 AdapterView.AdapterContextMenuInfo info;
-	        try {
-	             info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-	        } catch (ClassCastException e) {
-	            Log.e(TAG, "bad menuInfo", e);
-	            return;
-	        }
-	            
-		Cursor cursor  = (Cursor)getListAdapter().getItem(info.position);
+		AdapterView.AdapterContextMenuInfo info;
+		try {
+			info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+		} catch (ClassCastException e) {
+			Log.e(TAG, "bad menuInfo", e);
+			return;
+		}
+
+		Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
 		// TODO MAGIC NUMBERS BAD
 		String game = cursor.getString(1);
+
+		// construct menu header / items
 		menu.setHeaderTitle(game);
 		menu.add(0, MENU_ITEM_VIEW, 0, R.string.menu_viewLP).setIntent(
-				getListClickIntent(info.id));
-	     // Star toggling
-		DataHelper dh = ((LPArchiveApplication)getApplicationContext()).getDataHelper();
+				getLPViewIntent(info.id));
+
+		// Star toggling
+		DataHelper dh = ((LPArchiveApplication) getApplicationContext())
+				.getDataHelper();
+
+		if (dh.isFavoriteLP(info.id)) {
+			menu.add(0, MENU_ITEM_TOGGLE_FAV, 0, R.string.menu_unfavLP);
+		} else {
+			menu.add(0, MENU_ITEM_TOGGLE_FAV, 0, R.string.menu_favLP);
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterView.AdapterContextMenuInfo info;
+		try {
+			info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+		} catch (ClassCastException e) {
+			Log.e(TAG, "bad menuInfo", e);
+			return false;
+		}
+
+		Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
+		// TODO BAD MAGIC
+		long id = cursor.getLong(0);
+		Log.d(TAG, "id: " + id);
+		switch(item.getItemId()) {
+		case MENU_ITEM_TOGGLE_FAV:
+			dh.toggleFavoriteLP(id);
+			// need to refresh the list adapter
+			if(LPArchiveApplication.FAVORITE_LIST_ACTION.equals(action))
+				setListAdapter(new LPAdapter(this, dh.getFavoriteLPs()));
+			else
+				isDirty = true;
+			return true;
+		}
 		
-        if (dh.isFavoriteLP(info.id)) {
-            menu.add(0, MENU_ITEM_TOGGLE_FAV, 0, R.string.menu_favLP);
-        } else {
-            menu.add(0, MENU_ITEM_TOGGLE_FAV, 0, R.string.menu_unfavLP);
-        }
+		return super.onContextItemSelected(item);
 	}
 
-	public void tagFilter(int tagMenuSelected) {
+	/**
+	 * Filters the ListView to LPs from the archive matching a given tag.
+	 * 
+	 * @param tagIndex
+	 *            The index into arrays.lp_tags for a tag.
+	 */
+	public void tagFilter(int tagIndex) {
 		String[] tags = getResources().getStringArray(R.array.lp_tags);
-		if(tagMenuSelected >= tags.length) {
+		if(tagIndex >= tags.length) {
 			Log.e(TAG, "unrecognized tag");
 			return;
 		}
-		Cursor cursor = dh.tagSearch(tags[tagMenuSelected].toLowerCase());
+		Cursor cursor = dh.tagSearch(tags[tagIndex].toLowerCase());
 		setListAdapter(new LPAdapter(this, cursor));
 	}
 	

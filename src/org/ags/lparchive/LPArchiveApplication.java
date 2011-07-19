@@ -16,6 +16,9 @@ public class LPArchiveApplication extends Application {
 	public static final String ARCHIVE_LIST_ACTION = "org.ags.lparchive.ARCHIVE_LIST_ACTION";
 	public static final String FAVORITE_LIST_ACTION = "org.ags.lparchive.FAVORITE_LIST_ACTION";
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onCreate() {
 		super.onCreate();

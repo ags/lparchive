@@ -14,14 +14,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
-<!--		<activity android:name=".list.ArchiveListActivity">-->
-<!--			<intent-filter>-->
-<!--            	<action android:name="android.intent.action.SEARCH" />-->
-<!--        	</intent-filter>-->
-<!--        	<meta-data android:name="android.app.searchable"-->
-<!--                   		android:resource="@xml/searchable"/>-->
-<!--		</activity>-->
 		
 		<activity android:name=".list.LPListActivity">
 			<intent-filter>
@@ -33,17 +25,7 @@
 			</intent-filter>
 			<meta-data android:name="android.app.searchable" android:resource="@xml/searchable" />
 		</activity>
-		
-<!--		<activity android:name=".list.FavoriteListActivity"></activity>-->
-<!--		<activity android:name=".list.ChapterListActivity"></activity>-->
-<!--		<activity android:name=".list.LatestListActivity">-->
-<!--			<intent-filter>-->
-<!--            	<action android:name="android.intent.action.SEARCH" />-->
-<!--        	</intent-filter>-->
-<!--        	<meta-data android:name="android.app.searchable"-->
-<!--                   		android:resource="@xml/searchable"/>-->
-<!--		</activity>-->
-<!--		<activity android:name=".list.LPListActivity"></activity>-->
+		<activity android:name=".list.ChapterListActivity"></activity>
 		
 		<activity android:name=".page.PageActivity" android:configChanges="orientation"></activity>
 		<activity android:name=".page.ChapterPageActivity" android:configChanges="orientation"></activity>

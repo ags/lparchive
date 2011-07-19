@@ -19,13 +19,15 @@ import android.widget.TabHost;
 public class LPArchiveActivity extends TabActivity {
 	private int tagMenuSelected = 0;
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		setContentView(R.layout.main);
 	}
 	
-	/* constructs the application tab layout */
 	public void createTabs() {
 		TabHost tabHost = getTabHost();
 		TabHost.TabSpec spec;
@@ -66,6 +68,9 @@ public class LPArchiveActivity extends TabActivity {
 		tabHost.setCurrentTab(0);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void onPostCreate(Bundle icicle) {
 		super.onPostCreate(icicle);
@@ -79,6 +84,9 @@ public class LPArchiveActivity extends TabActivity {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();
@@ -86,6 +94,9 @@ public class LPArchiveActivity extends TabActivity {
 	    return true;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    // Handle item selection
