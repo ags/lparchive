@@ -1,65 +1,22 @@
 package org.ags.lparchive.model;
 
-import java.io.Serializable;
-
 import org.ags.lparchive.R;
+import org.ags.lparchive.LPArchiveApplication.LPTypes;
 
-public class LetsPlay implements Serializable {
-	private static final long serialVersionUID = 2806939216184750744L;
-	private int id;
+public class LetsPlay {
+	private long id;
 	private String game;
 	private String author;
 	private String url;
-	private String type;
-//	private List<String> tags;
-//	private List<UpdateLink> update_urls;
+	private LPTypes type;
 	
-	public LetsPlay(int id, String game, String author, String url, String type) {
+	public LetsPlay(long id, String game, String author, String url, LPTypes type) {
 		this.id = id;
 		this.game = game;
 		this.author = author;
 		this.url = url;
 		this.type = type;
-//		this.tags = new ArrayList<String>();
-//		this.update_urls = new ArrayList<UpdateLink>();
 	}
-
-//	public LetsPlay(Element e) {
-//		tags = new ArrayList<String>();
-////		update_urls = new ArrayList<UpdateLink>();
-//		url = "";
-//		
-//		List<Element> links = e.getAllElements(HTMLElementName.A);
-//		for (Element link : links) {
-//			String l_class = link.getAttributeValue("class");
-//			String href = link.getAttributeValue("href");
-//			if (l_class != null && href != null) { 
-//				if(l_class.equals("tag")) {
-//					tags.add(href.substring(5).split("#")[0]);
-//				} else {
-//					url = href;
-//				}
-//			}
-//		}
-//		
-//		Element strong = e.getFirstElement(HTMLElementName.STRONG);
-//		if (strong != null)
-//			game = strong.getContent().toString();
-//
-//		Element span = e.getFirstElement(HTMLElementName.SPAN);
-//		if (span != null) {
-//			author = span.getContent().toString();
-//			// remove "by " from author
-//			author = author.substring(3, author.length());
-//		}
-//		
-//		Element img = e.getFirstElement(HTMLElementName.IMG);
-//		if (img != null) {
-//			type = img.getAttributeValue("alt").toLowerCase();
-//		} else {
-//			type = "unknown";
-//		}
-//	}
 
 	public String getGame() {
 		return game;
@@ -72,50 +29,36 @@ public class LetsPlay implements Serializable {
 	public String getUrl() {
 		return url;
 	}
-//
-//	public List<String> getTags() {
-//		return tags;
-//	}
-//
-//	public void addTag(String tag) {
-//		tags.add(tag);
-//	}
 
-//	public List<UpdateLink> getUpdateUrls() {
-//		return update_urls;
-//	}
-//
-//	public void addUpdateUrl(UpdateLink updateLink) {
-//		update_urls.add(updateLink);
-//	}
-
-	public String toString() {
-		return String.format("%s by %s (%s)", game, author, url);
-	}
-
-	public int getIconResource() {
-		return getIconResource(type);
-	}
-
-	public String getType() {
+	public LPTypes getType() {
 		return type;
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
-		
-	public static int getIconResource(String type) {
-		if (type.equals("text"))
+	
+	public int getIconResource() {
+		return getIconResource(type);
+	}
+	
+	public static int getIconResource(LPTypes type) {
+		switch (type) {
+		case TEXT:
 			return R.drawable.icon_text;
-		else if (type.equals("screenshot"))
+		case SCREENSHOT:
 			return R.drawable.icon_screenshot;
-		else if (type.equals("video"))
+		case VIDEO:
 			return R.drawable.icon_video;
-		else if (type.equals("hybrid"))
+		case HYBRID:
 			return R.drawable.icon_hybrid;
-		else
+		default:
 			return R.drawable.icon;
+		}
+	}
+	
+	public String toString() {
+		return String.format("%s by %s (%s)", game, author, url);
 	}
 
 }

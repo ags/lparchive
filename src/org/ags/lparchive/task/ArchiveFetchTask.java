@@ -7,6 +7,7 @@ import org.ags.lparchive.LPArchiveActivity;
 import org.ags.lparchive.LPArchiveApplication;
 import org.ags.lparchive.R;
 import org.ags.lparchive.RetCode;
+import org.ags.lparchive.LPArchiveApplication.LPTypes;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -43,6 +44,7 @@ public class ArchiveFetchTask extends ProgressTask {
 		// parse the page for "archive" entries
 		dh.getDb().beginTransaction();
 		String url, game, author, type;
+		// TODO move lp_id to outside loop
 		for (Element e : doc.getElementsByTag("tr")) {
 			Elements e_url = e.getElementsByClass("lp");
 			// skip blank urls
@@ -56,8 +58,7 @@ public class ArchiveFetchTask extends ProgressTask {
 			author = e.getElementsByTag("span").first().text().substring(3);
 			type = e.getElementsByTag("img").first().attr("alt");
 			// insert
-			long lp_id = dh.insertLetsPlay(game, author, url, type
-					.toLowerCase());
+			long lp_id = dh.insertLetsPlay(game, author, url, LPTypes.valueOf(type.toUpperCase()));
 			// TODO check for -1
 			for (Element tag : e.getElementsByClass("tag")) {
 				dh.addTag(lp_id, tag.text());
@@ -71,10 +72,13 @@ public class ArchiveFetchTask extends ProgressTask {
 		// parse the page for "latest" entries
 		dh.getDb().beginTransaction();
 		Element latest = doc.getElementById(LATEST_DIV);
+		long id;
 		for (Element e : latest.getElementsByTag("li")) {
 			game = e.getElementsByTag("strong").first().text();
 			author = e.getElementsByTag("span").first().text().substring(3);
-			dh.markRecentLetsPlay(game, author);
+			id = dh.getID(game, author);
+			if(id != -1)
+				dh.markRecentLetsPlay(id);
 		}
 		dh.getDb().setTransactionSuccessful();
 		dh.getDb().endTransaction();

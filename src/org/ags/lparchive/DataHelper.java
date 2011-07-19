@@ -1,5 +1,6 @@
 package org.ags.lparchive;
 
+import org.ags.lparchive.LPArchiveApplication.LPTypes;
 import org.ags.lparchive.model.Chapter;
 import org.ags.lparchive.model.LetsPlay;
 
@@ -49,7 +50,7 @@ public class DataHelper {
 	// schema
 	private static final String SCHEMA_TABLE_ARCHIVE = String.format(
 		"CREATE TABLE %s (%s INTEGER PRIMARY KEY, %s TEXT, %s TEXT, %s TEXT, " +
-		"%s TEXT)", TABLE_ARCHIVE, KEY_ID, KEY_ARCHIVE_GAME, KEY_ARCHIVE_AUTHOR, 
+		"%s INTEGER)", TABLE_ARCHIVE, KEY_ID, KEY_ARCHIVE_GAME, KEY_ARCHIVE_AUTHOR, 
 		KEY_ARCHIVE_URL, KEY_ARCHIVE_TYPE);
 	
 	private static final String SCHEMA_TABLE_TAGS = String.format(
@@ -169,6 +170,7 @@ public class DataHelper {
 	public DataHelper(Context context) {
 		OpenHelper openHelper = new OpenHelper(context);
 		db = openHelper.getWritableDatabase();
+
 		insertLpStmnt = db.compileStatement(INSERT_LP);
 		latestLpStmnt = db.compileStatement(INSERT_LATEST);
 		insertTagStmnt = db.compileStatement(INSERT_TAG);
@@ -176,33 +178,48 @@ public class DataHelper {
 		insertFavStmnt = db.compileStatement(INSERT_FAV);
 		deleteFavStmnt = db.compileStatement(DELETE_FAV);
 	}
-
+	
+	/** Returns the database. Preferred access is through helper methods. */
 	public SQLiteDatabase getDb() {
 		return this.db;
 	}
 	
-	public long insertLetsPlay(String game, String author, String url, String type) {
+	/**
+	 * Inserts a Let's Play with given attributes into the DB.
+	 * @return The LP ID, or -1 on failure.
+	 */
+	public long insertLetsPlay(String game, String author, String url, LPTypes type) {
 		insertLpStmnt.bindString(1, game);
 		insertLpStmnt.bindString(2, author);
 		insertLpStmnt.bindString(3, url);
 		// TODO could save space using a long instead of string
-		insertLpStmnt.bindString(4, type);
+		insertLpStmnt.bindLong(4, type.ordinal());
 		return insertLpStmnt.executeInsert();
 	}
-		
-	public void markRecentLetsPlay(String game, String author) {
+	
+	/**
+	 * Given a game and author, attempts to retrieve LP ID.
+	 * @return ID of LP or -1 if no matches are found.
+	 */
+	public long getID(String game, String author) {
 		Cursor cursor = this.db.query(TABLE_ARCHIVE, new String[] { KEY_ID },
 				SELECTION_RECENT_LP, new String[] { game, author }, 
 				null, null, null);
-		if (cursor.moveToFirst()) {
-			do {
-				this.latestLpStmnt.bindLong(1, cursor.getInt(0));
-				this.latestLpStmnt.executeInsert();
-			} while (cursor.moveToNext());
-		}
-		if (cursor != null && !cursor.isClosed()) {
+		long id = -1;
+		if (cursor.moveToFirst())
+			id = cursor.getInt(0);
+		if (cursor != null && !cursor.isClosed())
 			cursor.close();
-		}
+		return id;
+	}
+	
+	/** 
+	 * Marks a given LP as recent addition to the archive.
+	 * @return Row ID on success, -1 otherwise.
+	 */
+	public long markRecentLetsPlay(long id) {
+		latestLpStmnt.bindLong(1, id);
+		return latestLpStmnt.executeInsert();
 	}
 	
 	public void addTag(long lp_id, String tag) {
@@ -243,11 +260,14 @@ public class DataHelper {
 		Cursor cursor = db.query(TABLE_ARCHIVE, projectArchive, "_id=?", 
 				new String[] { String.valueOf(id)}, null, null, null);
 		LetsPlay lp = null;
+		LPTypes[] types = LPTypes.values();
 		if (cursor.moveToFirst()) {
 			do {
-				lp = new LetsPlay(cursor.getInt(0), cursor
-						.getString(1), cursor.getString(2),
-						cursor.getString(3), cursor.getString(4));
+				lp = new LetsPlay(cursor.getLong(0), 
+						cursor.getString(1), 
+						cursor.getString(2),
+						cursor.getString(3), 
+						types[cursor.getInt(4)]);
 			} while (cursor.moveToNext());
 		}
 		if (cursor != null && !cursor.isClosed()) {

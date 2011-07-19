@@ -4,6 +4,7 @@ import org.ags.lparchive.DataHelper;
 import org.ags.lparchive.LPArchiveApplication;
 import org.ags.lparchive.LPSuggestionProvider;
 import org.ags.lparchive.R;
+import org.ags.lparchive.LPArchiveApplication.LPTypes;
 import org.ags.lparchive.list.adapter.LPAdapter;
 import org.ags.lparchive.model.LetsPlay;
 import org.ags.lparchive.page.SimplePageActivity;
@@ -104,10 +105,10 @@ public class LPListActivity extends ListActivity  {
 	 */
 	private Intent getLPViewIntent(long id) {
 		LetsPlay lp = dh.getLP(id);
-		String type = lp.getType();
+		LPTypes type = lp.getType();
 		// video formatting is inconsistent, so load as page
 		// TODO hybrid category
-		if(type.equals("video")) {
+		if(type.equals(LPTypes.VIDEO)) {
 			String pageUrl = LPArchiveApplication.baseURL + lp.getUrl();
 			return SimplePageActivity.newInstance(this, pageUrl);
 		} else {
