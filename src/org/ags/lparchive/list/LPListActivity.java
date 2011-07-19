@@ -131,8 +131,8 @@ public class LPListActivity extends ListActivity  {
 		}
 
 		Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
-		// TODO MAGIC NUMBERS BAD
-		String game = cursor.getString(1);
+		String game = cursor.getString(cursor.getColumnIndex(
+				DataHelper.KEY_ARCHIVE_GAME));
 
 		// construct menu header / items
 		menu.setHeaderTitle(game);
@@ -164,8 +164,7 @@ public class LPListActivity extends ListActivity  {
 		}
 
 		Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
-		// TODO BAD MAGIC
-		long id = cursor.getLong(0);
+		long id = cursor.getLong(cursor.getColumnIndex(DataHelper.KEY_ID));
 		Log.d(TAG, "id: " + id);
 		switch(item.getItemId()) {
 		case MENU_ITEM_TOGGLE_FAV:

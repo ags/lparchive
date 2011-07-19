@@ -45,5 +45,19 @@ public class LPArchiveApplication extends Application {
 	public boolean getFirstRun() {
 		return mPrefs.getBoolean("firstRun", true);
 	}
-
+	
+	public static int getIconResource(LPTypes type) {
+		switch (type) {
+		case TEXT:
+			return R.drawable.icon_text;
+		case SCREENSHOT:
+			return R.drawable.icon_screenshot;
+		case VIDEO:
+			return R.drawable.icon_video;
+		case HYBRID:
+			return R.drawable.icon_hybrid;
+		default:
+			return R.drawable.icon;
+		}
+	}
 }

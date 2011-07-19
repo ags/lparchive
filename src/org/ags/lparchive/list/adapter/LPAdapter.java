@@ -1,9 +1,9 @@
 package org.ags.lparchive.list.adapter;
 
 import org.ags.lparchive.DataHelper;
+import org.ags.lparchive.LPArchiveApplication;
 import org.ags.lparchive.R;
 import org.ags.lparchive.LPArchiveApplication.LPTypes;
-import org.ags.lparchive.model.LetsPlay;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -48,7 +48,8 @@ public class LPAdapter extends CursorAdapter {
 		int type = cursor.getInt(cursor.getColumnIndex(
 				DataHelper.KEY_ARCHIVE_TYPE));
 		ImageView icon = (ImageView) view.findViewById(R.id.icon);
-		icon.setImageResource(LetsPlay.getIconResource(LPTypes.values()[type]));
+		icon.setImageResource(LPArchiveApplication.getIconResource(
+				LPTypes.values()[type]));
 	}
 	
 }
