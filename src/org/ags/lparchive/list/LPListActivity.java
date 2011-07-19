@@ -187,12 +187,18 @@ public class LPListActivity extends ListActivity  {
 	 *            The index into arrays.lp_tags for a tag.
 	 */
 	public void tagFilter(int tagIndex) {
-		String[] tags = getResources().getStringArray(R.array.lp_tags);
-		if(tagIndex >= tags.length) {
-			Log.e(TAG, "unrecognized tag");
-			return;
+		Cursor cursor = null;
+		if (tagIndex == 0) {
+			cursor = dh.getArchive();
+		} else {
+			String[] tags = getResources().getStringArray(R.array.lp_tags);
+			if (tagIndex >= tags.length) {
+				Log.e(TAG, "unrecognized tag");
+				return;
+			} else {
+				cursor = dh.tagSearch(tags[tagIndex].toLowerCase());
+			}
 		}
-		Cursor cursor = dh.tagSearch(tags[tagIndex].toLowerCase());
 		setListAdapter(new LPAdapter(this, cursor));
 	}
 	
