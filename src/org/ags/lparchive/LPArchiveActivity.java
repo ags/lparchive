@@ -1,7 +1,6 @@
 package org.ags.lparchive;
 
-import org.ags.lparchive.list.ArchiveListActivity;
-import org.ags.lparchive.list.LatestListActivity;
+import org.ags.lparchive.list.LPListActivity;
 import org.ags.lparchive.page.DonatePageActivity;
 import org.ags.lparchive.task.ArchiveFetchTask;
 
@@ -32,23 +31,34 @@ public class LPArchiveActivity extends TabActivity {
 		TabHost.TabSpec spec;
 		Intent intent;
 
-		intent = new Intent(this, LatestListActivity.class);
+		intent = new Intent(this, LPListActivity.class)
+				.setAction(LPArchiveApplication.LATEST_LIST_ACTION);
 		spec = tabHost.newTabSpec("latest").setIndicator(
-				getString(R.string.latest_tab),
+				getString(R.string.tab_latest),
 				getResources().getDrawable(R.drawable.ic_tab_latest))
 				.setContent(intent);
 		tabHost.addTab(spec);
 
-		intent = new Intent(this, ArchiveListActivity.class);
+		// intent = new Intent(this, ArchiveListActivity.class);
+		intent = new Intent(this, LPListActivity.class)
+				.setAction(LPArchiveApplication.ARCHIVE_LIST_ACTION);
 		spec = tabHost.newTabSpec("archive").setIndicator(
-				getString(R.string.archive_tab),
+				getString(R.string.tab_archive),
 				getResources().getDrawable(R.drawable.ic_tab_archive))
 				.setContent(intent);
 		tabHost.addTab(spec);
-
+		
+		intent = new Intent(this, LPListActivity.class)
+		.setAction(LPArchiveApplication.FAVORITE_LIST_ACTION);
+		spec = tabHost.newTabSpec("favs").setIndicator(
+				getString(R.string.tab_favs),
+				getResources().getDrawable(R.drawable.ic_tab_star))
+				.setContent(intent);
+		tabHost.addTab(spec);
+		
 		intent = new Intent(this, DonatePageActivity.class);
 		spec = tabHost.newTabSpec("donate").setIndicator(
-				getString(R.string.donate_tab),
+				getString(R.string.tab_donate),
 				getResources().getDrawable(R.drawable.ic_tab_donate))
 				.setContent(intent);
 		tabHost.addTab(spec);
@@ -97,7 +107,7 @@ public class LPArchiveActivity extends TabActivity {
 	}
 	
 	private AlertDialog createTagDialog() {
-		final ArchiveListActivity act = (ArchiveListActivity) 
+		final LPListActivity act = (LPListActivity) 
 			getCurrentActivity();
 		return new AlertDialog.Builder(act)
         .setTitle(getString(R.string.tag_dialog_title))

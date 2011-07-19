@@ -11,9 +11,10 @@
     -->
     
 	<!-- Labels -->
-    <string name="latest_tab">Latest</string>
-    <string name="archive_tab">Archive</string>
-    <string name="donate_tab">Donate</string>
+    <string name="tab_latest">Latest</string>
+    <string name="tab_archive">Archive</string>
+    <string name="tab_donate">Donate</string>
+    <string name="tab_favs">Favorites</string>
     <string name="prefs_activity">Settings</string>
     <string name="refresh">Refresh</string>
     <string name="prev_chapter">Previous</string>
@@ -25,6 +26,9 @@
     <string name="tag_dialog_title">Search by tag</string>
     <string name="tag_dialog_confirm">Search</string>
     <string name="tag_dialog_cancel">Cancel</string>
+    <string name="menu_viewLP">View LP</string>
+    <string name="menu_favLP">Add to favorites</string>
+    <string name="menu_unfavLP">Remove from favorites</string>
     
     <!-- LP tags -->
     <string-array name="lp_tags">

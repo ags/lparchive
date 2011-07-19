@@ -19,21 +19,22 @@ public class DataHelper {
 	public static final String TAGS_TABLE = "tags";
 	public static final String CHAPTERS_TABLE = "chapters";
 	public static final String LATEST_TABLE = "latest";
+	public static final String FAVS_TABLE = "favorites";
 	
 	// keys
-	public static String KEY_ID = "_id";
-	public static String KEY_AUTHOR = "author";
-	public static String KEY_GAME = "game";
-	public static String KEY_URL = "url";
-	public static String KEY_TYPE = "type";
-	public static String KEY_LATEST_ID = "lp_id";
-	public static String KEY_TAG_ID = "lp_id";
-	public static String KEY_TAG = "tag";
-	public static String KEY_CHAPTER_LP_ID = "lp_id";
-	public static String KEY_CHAPTER_URL = "url";
-	public static String KEY_CHAPTER_TITLE = "title";
-	
-	public static String SORT_GAME_ASC = "game asc";
+	public static final String KEY_ID = "_id";
+	public static final String KEY_AUTHOR = "author";
+	public static final String KEY_GAME = "game";
+	public static final String KEY_URL = "url";
+	public static final String KEY_TYPE = "type";
+	public static final String KEY_LATEST_LP_ID = "lpId";
+	public static final String KEY_TAG_ID = "lpId";
+	public static final String KEY_TAG = "tag";
+	public static final String KEY_CHAPTER_LP_ID = "lpId";
+	public static final String KEY_CHAPTER_URL = "url";
+	public static final String KEY_CHAPTER_TITLE = "title";
+	public static final String KEY_FAVS_LP_ID = "lpId";
+	public static final String SORT_GAME_ASC = "game asc";
 	
 	public static final String[] projectArchive = new String[] { KEY_ID, 
 		KEY_GAME, KEY_AUTHOR, KEY_URL, KEY_TYPE };
@@ -57,33 +58,42 @@ public class DataHelper {
 			+ "(%s, %s, %s) values (?, ?, ?)", CHAPTERS_TABLE, KEY_CHAPTER_LP_ID,
 			KEY_CHAPTER_URL, KEY_CHAPTER_TITLE);
 	
-	private SQLiteStatement latestLpStmnt;
-	private static final String LATEST_LP = String.format(
-			"insert or replace into %s (%s) values (?)", 
-			LATEST_TABLE, KEY_LATEST_ID);
+	private SQLiteStatement insertFavStmnt;
+	private static final String INSERT_FAV = String.format(
+			"insert into %s (%s) values (?)", FAVS_TABLE, KEY_FAVS_LP_ID);
 	
+	private SQLiteStatement latestLpStmnt;
+	private static final String INSERT_LATEST = String.format(
+			"insert into %s (%s) values (?)", LATEST_TABLE, KEY_LATEST_LP_ID);
+	
+	// TODO use constants in these joins
 	private static final String RECENT_JOIN = "SELECT archive._id, archive.game, " +
 			"archive.author, archive.url, archive.type FROM archive, latest " +
-			"WHERE (archive._id = latest.lp_id) ORDER BY game asc";
+			"WHERE (archive._id = latest.lpId) ORDER BY game asc";
 	
 	private static final String RECENT_JOIN_FILTERED = "SELECT archive._id, " +
 			"archive.game, archive.author, archive.url, archive.type FROM " +
-			"archive, latest WHERE (archive._id = latest.lp_id) AND " +
+			"archive, latest WHERE (archive._id = latest.lpId) AND " +
 			"archive.game LIKE ? ORDER BY game asc";
 	
 	private static final String TAG_SEARCH = "SELECT archive._id, archive.game," +
 			" archive.author, archive.url, archive.type, tags.tag" +
-			" FROM archive, tags WHERE archive._id = tags.lp_id AND" +
+			" FROM archive, tags WHERE archive._id = tags.lpId AND" +
 			" tags.tag = ? GROUP BY archive._id ORDER BY game asc"; 
+	
+	private static final String FAV_JOIN = "SELECT archive._id, archive.game, " +
+	"archive.author, archive.url, archive.type FROM archive, favorites " +
+	"WHERE (archive._id = favorites.lpId) ORDER BY game asc";
 	
 	public DataHelper(Context context) {
 		this.context = context;
 		OpenHelper openHelper = new OpenHelper(this.context);
-		this.db = openHelper.getWritableDatabase();
-		this.insertLpStmnt = this.db.compileStatement(INSERT_LP);
-		this.latestLpStmnt = this.db.compileStatement(LATEST_LP);
-		this.insertTagStmnt = this.db.compileStatement(INSERT_TAG);
-		this.insertChapterStmnt = this.db.compileStatement(INSERT_CHAPTER);
+		db = openHelper.getWritableDatabase();
+		insertLpStmnt = db.compileStatement(INSERT_LP);
+		latestLpStmnt = db.compileStatement(INSERT_LATEST);
+		insertTagStmnt = db.compileStatement(INSERT_TAG);
+		insertChapterStmnt = db.compileStatement(INSERT_CHAPTER);
+		insertFavStmnt = db.compileStatement(INSERT_FAV);
 	}
 
 	public SQLiteDatabase getDb() {
@@ -120,7 +130,7 @@ public class DataHelper {
 		this.insertTagStmnt.executeInsert();
 	}
 	
-	public Cursor getRecentLetsPlay() {
+	public Cursor getLatestLPs() {
 		// join doesn't appear to work unless using raw query
 		return this.db.rawQuery(RECENT_JOIN, null);
 	}
@@ -137,7 +147,7 @@ public class DataHelper {
 	}
 	
 	public Cursor getChapters(long lpId) {
-		return this.db.query(CHAPTERS_TABLE, projectChapter, "lp_id=?",
+		return this.db.query(CHAPTERS_TABLE, projectChapter, "lpId=?",
 				new String[] { String.valueOf(lpId) }, null, null, null);
 	}
 
@@ -197,6 +207,21 @@ public class DataHelper {
 		return db.rawQuery(TAG_SEARCH, args);	
 	}
 	
+	public void setFavoriteLP(long id, boolean is) {
+		// if is, add to table
+		// if not, remove
+	}
+	
+	public boolean isFavoriteLP(long id) {
+		// query
+		// check cursor
+		return false;
+	}
+	
+	public Cursor getFavoriteLPs() {
+		return this.db.rawQuery(FAV_JOIN, null);
+	}
+	
 	private static class OpenHelper extends SQLiteOpenHelper {
 
 		OpenHelper(Context context) {
@@ -210,11 +235,13 @@ public class DataHelper {
 					+ " (_id INTEGER PRIMARY KEY, game TEXT, " +
 							"author TEXT, url TEXT, type TEXT)");
 			db.execSQL("CREATE TABLE " + TAGS_TABLE
-					+ " (_id INTEGER PRIMARY KEY, lp_id INTEGER, tag TEXT)");
+					+ " (_id INTEGER PRIMARY KEY, lpId INTEGER, tag TEXT)");
 			db.execSQL("CREATE TABLE " + CHAPTERS_TABLE
-					+ " (_id INTEGER PRIMARY KEY, lp_id INTEGER, url TEXT, title TEXT)");
+					+ " (_id INTEGER PRIMARY KEY, lpId INTEGER, url TEXT, title TEXT)");
 			db.execSQL("CREATE TABLE " + LATEST_TABLE
-					+ " (_id INTEGER PRIMARY KEY, lp_id INTEGER)");
+					+ " (_id INTEGER PRIMARY KEY, lpId INTEGER)");
+			db.execSQL("CREATE TABLE " + FAVS_TABLE
+					+ " (_id INTEGER PRIMARY KEY, lpId INTEGER)");
 		}
 
 		@Override
@@ -224,6 +251,7 @@ public class DataHelper {
 			db.execSQL("DROP TABLE IF EXISTS " + ARCHIVE_TABLE);
 			db.execSQL("DROP TABLE IF EXISTS " + TAGS_TABLE);
 			db.execSQL("DROP TABLE IF EXISTS " + CHAPTERS_TABLE);
+			db.execSQL("DROP TABLE IF EXISTS " + FAVS_TABLE);
 			onCreate(db);
 		}
 	}
