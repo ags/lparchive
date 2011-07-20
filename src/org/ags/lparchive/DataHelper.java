@@ -186,13 +186,17 @@ public class DataHelper {
 	
 	/**
 	 * Inserts a Let's Play with given attributes into the DB.
-	 * @return The LP ID, or -1 on failure.
+	 * If a LP with the same game name / author exists, returns its ID.
+	 * @return LP ID, or -1 on failure.
 	 */
-	public long insertLetsPlay(String game, String author, String url, LPTypes type) {
+	public long insertLetsPlay(String game, String author, String url, LPTypes type) 
+		throws DuplicateLPException {
+		long id = getID(game, author);
+		if(id != -1) 
+			throw new DuplicateLPException(id);
 		insertLpStmnt.bindString(1, game);
 		insertLpStmnt.bindString(2, author);
 		insertLpStmnt.bindString(3, url);
-		// TODO could save space using a long instead of string
 		insertLpStmnt.bindLong(4, type.ordinal());
 		return insertLpStmnt.executeInsert();
 	}
@@ -330,6 +334,10 @@ public class DataHelper {
 		return this.db.rawQuery(FAV_JOIN, null);
 	}
 	
+	public void clearLatest() {
+		db.execSQL("DELETE FROM " + TABLE_LATEST);
+	}
+	
 	private static class OpenHelper extends SQLiteOpenHelper {
 
 		OpenHelper(Context context) {
@@ -352,8 +360,15 @@ public class DataHelper {
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_TAGS);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAPTERS);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_FAVORITES);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_LATEST);
 			onCreate(db);
 		}
 	}
 
+	@SuppressWarnings("serial")
+	public class DuplicateLPException extends Exception {
+		DuplicateLPException(long id) {
+			super(id + " already exists");
+		}
+	}
 }

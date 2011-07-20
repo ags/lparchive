@@ -8,6 +8,10 @@
 		android:title="@string/tag_filter"
 		android:icon="@android:drawable/ic_menu_sort_by_size" />
 		
+	<item android:id="@+id/refresh_archive" 
+		android:title="@string/refresh" 
+		android:icon="@drawable/ic_menu_refresh" />
+			
 	<item android:id="@+id/preferences" 
 		android:title="@string/prefs_activity"
 		android:icon="@drawable/ic_menu_preferences" />

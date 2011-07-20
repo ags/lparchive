@@ -7,6 +7,7 @@ import org.ags.lparchive.LPArchiveActivity;
 import org.ags.lparchive.LPArchiveApplication;
 import org.ags.lparchive.R;
 import org.ags.lparchive.RetCode;
+import org.ags.lparchive.DataHelper.DuplicateLPException;
 import org.ags.lparchive.LPArchiveApplication.LPTypes;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -58,12 +59,19 @@ public class ArchiveFetchTask extends ProgressTask {
 			author = e.getElementsByTag("span").first().text().substring(3);
 			type = e.getElementsByTag("img").first().attr("alt");
 			// insert
-			long lp_id = dh.insertLetsPlay(game, author, url, LPTypes.valueOf(type.toUpperCase()));
-			// TODO check for -1
-			for (Element tag : e.getElementsByClass("tag")) {
-				dh.addTag(lp_id, tag.text());
+			try {
+				long lp_id = dh.insertLetsPlay(game, author, url, 
+						LPTypes.valueOf(type.toUpperCase()));
+				if (lp_id != -1) {
+					for (Element tag : e.getElementsByClass("tag"))
+						dh.addTag(lp_id, tag.text());
+					Log.d(TAG, "inserted LP " + lp_id);
+				} else {
+					Log.e(TAG, "failed to insert " + game);
+				}
+			} catch (DuplicateLPException ex) {
+				Log.w(TAG, ex.getMessage());
 			}
-			Log.d(TAG, "inserted LP " + lp_id);
 		}
 		dh.getDb().setTransactionSuccessful();
 		dh.getDb().endTransaction();

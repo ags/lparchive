@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.widget.TabHost;
 
 public class LPArchiveActivity extends TabActivity {
+	private static final String TAG = "LPArchiveActivity";
 	private int tagMenuSelected = 0;
 	
 	/**
@@ -32,7 +33,8 @@ public class LPArchiveActivity extends TabActivity {
 		TabHost tabHost = getTabHost();
 		TabHost.TabSpec spec;
 		Intent intent;
-
+		tabHost.clearAllTabs();
+		
 		intent = new Intent(this, LPListActivity.class)
 				.setAction(LPArchiveApplication.LATEST_LIST_ACTION);
 		spec = tabHost.newTabSpec("latest").setIndicator(
@@ -41,7 +43,6 @@ public class LPArchiveActivity extends TabActivity {
 				.setContent(intent);
 		tabHost.addTab(spec);
 
-		// intent = new Intent(this, ArchiveListActivity.class);
 		intent = new Intent(this, LPListActivity.class)
 				.setAction(LPArchiveApplication.ARCHIVE_LIST_ACTION);
 		spec = tabHost.newTabSpec("archive").setIndicator(
@@ -108,6 +109,13 @@ public class LPArchiveActivity extends TabActivity {
 	    case R.id.tag_filter:
 	    	getTabHost().setCurrentTab(1);
 	    	createTagDialog().show();
+	    	return true;
+	    case R.id.refresh_archive:
+			LPArchiveApplication appState = ((LPArchiveApplication) 
+					getApplicationContext());
+	    	appState.getDataHelper().clearLatest();
+	    	Log.d(TAG, "latest cleared");
+	    	new ArchiveFetchTask(this).execute();
 	    	return true;
 	    case R.id.preferences:
 	    	startActivity(new Intent(this, Preferences.class));
