@@ -2,9 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/download_lp"
        	android:title="@string/download_lp" 
-       	android:icon="@drawable/ic_menu_save" />
+       	android:icon="@android:drawable/ic_menu_save" />
           
 	<item android:id="@+id/preferences" 
 		android:title="@string/prefs_activity"
-		android:icon="@drawable/ic_menu_preferences" />
+		android:icon="@android:drawable/ic_menu_preferences" />
 </menu>

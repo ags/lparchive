@@ -100,7 +100,7 @@ public abstract class PageFetchTask extends ProgressTask {
 			Element content = doc.getElementById(CONTENT_ELEMENT);
 			// if there's nothing here, say so
 //			Log.d("LPA", "CONTENT: " + content.text());
-			if(content.text().isEmpty())
+			if(content.text().equals(""))
 				content.append(EMPTY_PAGE);
 			
 			// apply site CSS to improve readability
