@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/download_lp"
-       	android:title="@string/download_lp" 
-       	android:icon="@android:drawable/ic_menu_save" />
-          
+<!--    <item android:id="@+id/download_lp"-->
+<!--       	android:title="@string/download_lp" -->
+<!--       	android:icon="@android:drawable/ic_menu_save" />-->
+              
+<!--	<item android:id="@+id/favLP" -->
+<!--		android:title="@string/options_menu_favLP"-->
+<!--		android:icon="@drawable/ic_menu_star" />-->
+		      
 	<item android:id="@+id/preferences" 
 		android:title="@string/prefs_activity"
 		android:icon="@android:drawable/ic_menu_preferences" />

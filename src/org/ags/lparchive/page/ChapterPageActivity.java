@@ -32,6 +32,10 @@ public class ChapterPageActivity extends PageActivity {
         return i;
     }
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if (savedInstanceState == null) {
@@ -62,6 +66,9 @@ public class ChapterPageActivity extends PageActivity {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
@@ -69,6 +76,9 @@ public class ChapterPageActivity extends PageActivity {
 		return true;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		// enable/disable the previous/next buttons depending on chapter
@@ -78,6 +88,9 @@ public class ChapterPageActivity extends PageActivity {
 		return super.onPrepareOptionsMenu(menu);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
@@ -103,11 +116,14 @@ public class ChapterPageActivity extends PageActivity {
 		public LoadPageFetchTask(Activity activity, String url, boolean isIntro) {
 			super(activity, url, isIntro);
 		}
-
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
 		protected void onPostExecute(RetCode result) {
 			super.onPostExecute(result);
 			if (result.equals(RetCode.SUCCESS)) {
-//				Log.d("LPA", "html: " + html);
 				webview.loadDataWithBaseURL(url, html, "text/html", "utf-8",
 						null);
 			}

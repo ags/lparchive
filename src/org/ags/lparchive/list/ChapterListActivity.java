@@ -9,7 +9,6 @@ import org.ags.lparchive.R;
 import org.ags.lparchive.RetCode;
 import org.ags.lparchive.list.adapter.ChapterAdapter;
 import org.ags.lparchive.page.ChapterPageActivity;
-import org.ags.lparchive.task.DownloadLPTask;
 import org.ags.lparchive.task.ProgressTask;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -85,9 +84,9 @@ public class ChapterListActivity extends ListActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    // Handle item selection
 	    switch (item.getItemId()) {
-	    case R.id.download_lp:
-	    	new DownloadLPTask(this, lpId).execute();
-	        return true;
+//	    case R.id.download_lp:
+//	    	new DownloadLPTask(this, lpId).execute();
+//	        return true;
 	    case R.id.preferences:
 	    	startActivity(new Intent(this, Preferences.class));
 	    	return true;

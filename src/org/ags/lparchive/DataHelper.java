@@ -25,23 +25,36 @@ public class DataHelper {
 	public static final String TABLE_FAVORITES = "favorites";
 	
 	// keys
-	public static final String KEY_ID = "_id";
+	public static final String KEY_ID = "_id"; // 0
+	public static final int INDEX_ID = 0;
 	
-	public static final String KEY_ARCHIVE_AUTHOR = "author";
-	public static final String KEY_ARCHIVE_GAME = "game";
-	public static final String KEY_ARCHIVE_URL = "url";
-	public static final String KEY_ARCHIVE_TYPE = "type";
+	public static final String KEY_ARCHIVE_GAME = "game"; // 1
+	public static final int INDEX_ARCHIVE_GAME = 1;
+	public static final String KEY_ARCHIVE_AUTHOR = "author"; // 2 
+	public static final int INDEX_ARCHIVE_AUTHOR = 2;
+	public static final String KEY_ARCHIVE_URL = "url"; // 3
+	public static final int INDEX_ARCHIVE_URL = 3;
+	public static final String KEY_ARCHIVE_TYPE = "type"; // 4
+	public static final int INDEX_ARCHIVE_TYPE = 4;
 	
-	public static final String KEY_LATEST_LP_ID = "lpId";
+	public static final String KEY_LATEST_LP_ID = "lpId"; // 1
+	public static final int INDEX_LATEST_LP_ID = 1;
 	
-	public static final String KEY_TAG_LP_ID = "lpId";
-	public static final String KEY_TAG = "tag";
 	
-	public static final String KEY_CHAPTER_LP_ID = "lpId";
-	public static final String KEY_CHAPTER_URL = "url";
-	public static final String KEY_CHAPTER_TITLE = "title";
+	public static final String KEY_TAG_LP_ID = "lpId"; // 1
+	public static final int INDEX_TAG_LP_ID = 1;
+	public static final String KEY_TAG = "tag"; // 2
+	public static final int INDEX_TAG = 2;
 	
-	public static final String KEY_FAVS_LP_ID = "lpId";
+	public static final String KEY_CHAPTER_LP_ID = "lpId"; // 1
+	public static final int INDEX_CHAPTER_LP_ID = 1;
+	public static final String KEY_CHAPTER_URL = "url"; // 2
+	public static final int INDEX_CHAPTER_URL = 2;
+	public static final String KEY_CHAPTER_TITLE = "title"; // 3
+	public static final int INDEX_CHAPTER_TITLE = 3;
+	
+	public static final String KEY_FAVS_LP_ID = "lpId"; // 1
+	public static final int INDEX_FAVS_LP_ID = 1;
 	
 	// sorting
 	public static final String SORT_GAME_ASC = String.format("%s asc", 
@@ -141,7 +154,7 @@ public class DataHelper {
 		TABLE_ARCHIVE, KEY_ARCHIVE_TYPE);
 	
 	// joins
-	private static final String RECENT_JOIN = String.format(
+	private static final String LATEST_JOIN = String.format(
 		"SELECT %s FROM %s, %s WHERE (%s.%s = %s.%s) ORDER BY %s",
 		ARCHIVE_PROJECT, TABLE_ARCHIVE, TABLE_LATEST, TABLE_ARCHIVE, 
 		KEY_ID, TABLE_LATEST, KEY_LATEST_LP_ID, SORT_GAME_ASC);
@@ -185,24 +198,29 @@ public class DataHelper {
 	}
 	
 	/**
-	 * Inserts a Let's Play with given attributes into the DB.
-	 * If a LP with the same game name / author exists, returns its ID.
-	 * @return LP ID, or -1 on failure.
+	 * Inserts a Let's Play with given attributes into the DB. If a LP with the
+	 * same game name / author exists, returns its ID.
+	 * 
+	 * @return Inserted records LP ID, or -1 on failure.
+	 * @throws DuplicateLPException
+	 *             If the inserted game/author attributes match an existing
+	 *             record.
 	 */
 	public long insertLetsPlay(String game, String author, String url, LPTypes type) 
 		throws DuplicateLPException {
 		long id = getID(game, author);
 		if(id != -1) 
 			throw new DuplicateLPException(id);
-		insertLpStmnt.bindString(1, game);
-		insertLpStmnt.bindString(2, author);
-		insertLpStmnt.bindString(3, url);
-		insertLpStmnt.bindLong(4, type.ordinal());
+		insertLpStmnt.bindString(INDEX_ARCHIVE_GAME, game);
+		insertLpStmnt.bindString(INDEX_ARCHIVE_AUTHOR, author);
+		insertLpStmnt.bindString(INDEX_ARCHIVE_URL, url);
+		insertLpStmnt.bindLong(INDEX_ARCHIVE_TYPE, type.ordinal());
 		return insertLpStmnt.executeInsert();
 	}
 	
 	/**
 	 * Given a game and author, attempts to retrieve LP ID.
+	 * 
 	 * @return ID of LP or -1 if no matches are found.
 	 */
 	public long getID(String game, String author) {
@@ -211,7 +229,7 @@ public class DataHelper {
 				null, null, null);
 		long id = -1;
 		if (cursor.moveToFirst())
-			id = cursor.getInt(0);
+			id = cursor.getInt(INDEX_ID);
 		if (cursor != null && !cursor.isClosed())
 			cursor.close();
 		return id;
@@ -226,40 +244,58 @@ public class DataHelper {
 		return latestLpStmnt.executeInsert();
 	}
 	
+	/**
+	 * Adds the given tag to the LP with the given ID.
+	 */
 	public void addTag(long lp_id, String tag) {
-		insertTagStmnt.bindLong(1, lp_id);
-		insertTagStmnt.bindString(2, tag);
+		insertTagStmnt.bindLong(INDEX_TAG_LP_ID, lp_id);
+		insertTagStmnt.bindString(INDEX_TAG, tag);
 		insertTagStmnt.executeInsert();
 	}
-	
+
+	/**
+	 * @return A Cursor to access the LP data of all latest LPs
+	 */
 	public Cursor getLatestLPs() {
-		// join doesn't appear to work unless using raw query
-		return this.db.rawQuery(RECENT_JOIN, null);
+		// joins don't appear to work unless using raw query
+		return db.rawQuery(LATEST_JOIN, null);
 	}
-
-	public void deleteAll() {
-		db.delete(TABLE_ARCHIVE, null, null);
-		db.delete(TABLE_TAGS, null, null);
-		db.delete(TABLE_CHAPTERS, null, null);
-	}
-
+	
+	/** 
+	 * @return A Cursor to access all LP data
+	 */
 	public Cursor getArchive() {
 		return db.query(TABLE_ARCHIVE, projectArchive, null,
 				null, null, null, SORT_GAME_ASC);
 	}
 	
+	/**
+	 * Given an LP ID, returns all Chapters associated with it.
+	 * 
+	 * @param lpId
+	 *            The LP to retrieve chapters for
+	 * @return Cursor to Chapter data for given LP.
+	 */
 	public Cursor getChapters(long lpId) {
 		return this.db.query(TABLE_CHAPTERS, projectChapter, SELECTION_CHAPTER,
 				new String[] { String.valueOf(lpId) }, null, null, null);
 	}
 
+	/**
+	 * Inserts a chapter with given attributes for the given LP.
+	 * 
+	 * @return ID of chapter on success, -1 otherwise.
+	 */
 	public long insertChapter(long lpId, String url, String title) {
-		insertChapterStmnt.bindLong(1, lpId);
-		insertChapterStmnt.bindString(2, url);
-		insertChapterStmnt.bindString(3, title);
+		insertChapterStmnt.bindLong(INDEX_CHAPTER_LP_ID, lpId);
+		insertChapterStmnt.bindString(INDEX_CHAPTER_URL, url);
+		insertChapterStmnt.bindString(INDEX_CHAPTER_TITLE, title);
 		return insertChapterStmnt.executeInsert();
 	}
-
+	
+	/**
+	 * @return LetsPlay matching the given ID or null if none found. 
+	 */
 	public LetsPlay getLP(long id) {
 		Cursor cursor = db.query(TABLE_ARCHIVE, projectArchive, "_id=?", 
 				new String[] { String.valueOf(id)}, null, null, null);
@@ -267,11 +303,11 @@ public class DataHelper {
 		LPTypes[] types = LPTypes.values();
 		if (cursor.moveToFirst()) {
 			do {
-				lp = new LetsPlay(cursor.getLong(0), 
-						cursor.getString(1), 
-						cursor.getString(2),
-						cursor.getString(3), 
-						types[cursor.getInt(4)]);
+				lp = new LetsPlay(cursor.getLong(INDEX_ID), 
+						cursor.getString(INDEX_ARCHIVE_GAME), 
+						cursor.getString(INDEX_ARCHIVE_AUTHOR),
+						cursor.getString(INDEX_ARCHIVE_URL), 
+						types[cursor.getInt(INDEX_ARCHIVE_TYPE)]);
 			} while (cursor.moveToNext());
 		}
 		if (cursor != null && !cursor.isClosed()) {
@@ -279,14 +315,18 @@ public class DataHelper {
 		}
 		return lp;
 	}
-
+	
+	/**
+	 * @return Chapter matching the given ID or null if none found.
+	 */
 	public Chapter getChapter(long id) {
 		Cursor cursor = db.query(TABLE_CHAPTERS, projectChapter, "_id=?", 
 				new String[] { String.valueOf(id)}, null, null, null);
 		Chapter c = null;
 		if (cursor.moveToFirst()) {
 			do {
-				c = new Chapter(cursor.getString(2), cursor.getString(3));
+				c = new Chapter(cursor.getString(INDEX_CHAPTER_TITLE), 
+						cursor.getString(INDEX_CHAPTER_URL));
 			} while (cursor.moveToNext());
 		}
 		if (cursor != null && !cursor.isClosed()) {
@@ -294,35 +334,63 @@ public class DataHelper {
 		}
 		return c;
 	}
-
+	
+	/**
+	 * Searches archive LPs for games containing a given name.
+	 * 
+	 * @param name
+	 *            Query on 'game' attribute.
+	 * @return Cursor for matching records. This may be empty.
+	 */
 	public Cursor lpNameSearch(String name) {
         String[] args = new String[] { "%" + name + "%"};
         return db.query(DataHelper.TABLE_ARCHIVE, DataHelper.projectArchive,
         		SELECTION_LP_NAME_SEARCH, args, null, null, SORT_GAME_ASC);
 	}
 	
+	/**
+	 * Searches latest LPs for games containing a given name.
+	 * 
+	 * @param name
+	 *            Query on 'game' attribute.
+	 * @return Cursor for matching records. This may be empty.
+	 */
 	public Cursor lpLatestNameSearch(String name) {
-        String[] args = new String[] { "%" + name + "%"};
+		String[] args = new String[] { "%" + name + "%" };
 		return db.rawQuery(RECENT_JOIN_FILTERED, args);
 	}
 	
+	/**
+	 * Searches archive LPs for games with a given tag.
+	 * 
+	 * @param tag
+	 *            Tag to match on.
+	 * @return Cursor for matching records. This may be empty.
+	 */
 	public Cursor tagSearch(String tag) {
 		String[] args = new String[] { tag };
-		return db.rawQuery(TAG_SEARCH, args);	
+		return db.rawQuery(TAG_SEARCH, args);
 	}
-	
-	public long toggleFavoriteLP(long id) {
-		if(isFavoriteLP(id)) {
-			deleteFavStmnt.bindLong(1, id);
-			// executeUpdateDelete is API level 11, targeting 8
+
+	/**
+	 * Given an ID, will mark the corresponding LP as a favorite if it isn't, or
+	 * unmark if it already is.
+	 * 
+	 * @param id
+	 *            LP to mark/unmark.
+	 */
+	public void toggleFavoriteLP(long id) {
+		if (isFavoriteLP(id)) {
+			deleteFavStmnt.bindLong(INDEX_FAVS_LP_ID, id);
+			// executeUpdateDelete is API level 11, targeting 7
 			deleteFavStmnt.execute();
-			return 0;
 		} else {
-			insertFavStmnt.bindLong(1, id);
-			return insertFavStmnt.executeInsert();
+			insertFavStmnt.bindLong(INDEX_FAVS_LP_ID, id);
+			insertFavStmnt.executeInsert();
 		}
 	}
 	
+	/** Returns true if the LP with given ID is marked a favorite. */
 	public boolean isFavoriteLP(long id) {
 		Cursor cursor = this.db.query(TABLE_FAVORITES, projectFavorite, 
 				SELECTION_FAVORITE, new String[] { String.valueOf(id)}, 
@@ -330,20 +398,28 @@ public class DataHelper {
 		return cursor.moveToFirst();
 	}
 	
+	/** Returns a Cursor to the archive attributes of favorite LPs */ 
 	public Cursor getFavoriteLPs() {
 		return this.db.rawQuery(FAV_JOIN, null);
 	}
 	
+	/** Clears the list of latest LPs */
 	public void clearLatest() {
 		db.execSQL("DELETE FROM " + TABLE_LATEST);
 	}
 	
+	/**
+	 * Assists in the creation/modification the SQLite DB structure.
+	 */
 	private static class OpenHelper extends SQLiteOpenHelper {
 
 		OpenHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
 		}
-
+		
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
 		public void onCreate(SQLiteDatabase db) {
 			db.execSQL(SCHEMA_TABLE_ARCHIVE);
@@ -352,10 +428,13 @@ public class DataHelper {
 			db.execSQL(SCHEMA_TABLE_LATEST);
 			db.execSQL(SCHEMA_TABLE_FAVORITES);
 		}
-
+		
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			Log.w(TAG, "Upgrading database");
+			Log.w(TAG, "upgrading database - dropping tables");
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARCHIVE);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_TAGS);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAPTERS);
