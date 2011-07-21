@@ -1,7 +1,6 @@
 package org.ags.lparchive;
 
 import org.ags.lparchive.list.LPListActivity;
-
 import org.ags.lparchive.page.DonatePageActivity;
 import org.ags.lparchive.task.ArchiveFetchTask;
 

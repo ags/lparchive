@@ -17,16 +17,47 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+/**
+ * Loads a page of a LP with chapter specific navigation menu options.
+ */
 public class ChapterPageActivity extends PageActivity {
+	public static final int MENU_PREVIOUS = 0;
+	public static final int MENU_NEXT = 0;
+	
 	private Cursor cursor;
-	private String chaptersUrl;
+	private String lpUrl;
 	private long lpId;
 	private int position;
 	private DataHelper dh;
 	
-	public static Intent newInstance(Context context, String chaptersUrl, long lpId, int position) {
+	/**
+	 * Creates an Intent to launch a ChapterPageActivity for a LP.
+	 * 
+	 * @param lpUrl
+	 *            The URL for the LP. eg.
+	 *            http://lparchive.org/Final-Fantasy-IX/
+	 * @param lpId
+	 *            The Let's Play ID in the DB.
+	 * @return The created intent.
+	 */
+	public static Intent newInstance(Context context, String lpUrl, long lpId) {
+		return newInstance(context, lpUrl, lpId, 0);
+    }
+	
+	/**
+	 * Creates an Intent to launch a ChapterPageActivity for a LP.
+	 * 
+	 * @param lpUrl
+	 *            The URL for the LP. eg. http://lparchive.org/Final-Fantasy-IX/
+	 * @param lpId
+	 *            The Let's Play ID in the DB.
+	 * @param position
+	 *            Chapter number to view.
+	 * @return The created intent.
+	 */
+	public static Intent newInstance(Context context, String lpUrl, long lpId, int position) {
 		Intent i = new Intent(context, ChapterPageActivity.class);
-        i.putExtra("chaptersUrl", chaptersUrl);
+        i.putExtra("lpUrl", lpUrl);
         i.putExtra("position", position);
         i.putExtra("lpId", lpId);
         return i;
@@ -40,7 +71,7 @@ public class ChapterPageActivity extends PageActivity {
 		super.onCreate(savedInstanceState);
 		if (savedInstanceState == null) {
 			Bundle extras = getIntent().getExtras();
-			chaptersUrl = extras.getString("chaptersUrl");
+			lpUrl = extras.getString("lpUrl");
 			position = extras.getInt("position");
 			lpId = extras.getLong("lpId");
 			
@@ -54,11 +85,12 @@ public class ChapterPageActivity extends PageActivity {
 	}
 	
 	protected void loadPage() {
+		// ensure position points to somewhere valid
 		if (cursor.moveToPosition(position)) {
 			long id = cursor.getLong(0);
 			Chapter c = dh.getChapter(id);
 			boolean isIntro = c.isIntro();
-			String pageUrl = (isIntro) ? chaptersUrl : chaptersUrl + c.getUrl();
+			String pageUrl = (isIntro) ? lpUrl : lpUrl + c.getUrl();
 
 			new LoadPageFetchTask(this, pageUrl, isIntro).execute();
 		} else {
@@ -82,8 +114,8 @@ public class ChapterPageActivity extends PageActivity {
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		// enable/disable the previous/next buttons depending on chapter
-		menu.getItem(0).setEnabled(position != 0);
-		menu.getItem(1).setEnabled(cursor.getCount() - 1 != position);
+		menu.getItem(MENU_PREVIOUS).setEnabled(position != 0);
+		menu.getItem(MENU_NEXT).setEnabled(cursor.getCount() - 1 != position);
 
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -94,16 +126,17 @@ public class ChapterPageActivity extends PageActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
+	    // reload current chapter
 	    case R.id.refresh_page:
 	    	loadPage();
 	    	return true;
+    	// load previous chapter
 	    case R.id.prev_chapter:
-	    	// load previous chapter
 	    	position--;
 	    	loadPage();
 	    	return true;
+    	// load next chapter
 	    case R.id.next_chapter:
-	    	// load next chapter
 	    	position++;
 	    	loadPage();
 	    	return true;
@@ -112,6 +145,7 @@ public class ChapterPageActivity extends PageActivity {
 	    }
 	}
 
+	/** Loads page into this activities Webview. */
 	class LoadPageFetchTask extends PageFetchTask {
 		public LoadPageFetchTask(Activity activity, String url, boolean isIntro) {
 			super(activity, url, isIntro);

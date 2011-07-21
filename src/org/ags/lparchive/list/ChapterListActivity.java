@@ -35,7 +35,7 @@ import android.widget.Toast;
 public class ChapterListActivity extends ListActivity {
 	private static final String TAG = "ChapterListActivity";
 	private long lpId;
-	private String chaptersUrl;
+	private String lpUrl;
 	private DataHelper dh;
 
 	/**
@@ -62,7 +62,7 @@ public class ChapterListActivity extends ListActivity {
 		Bundle extras = getIntent().getExtras();
 		lpId = extras.getLong("lpId");
 		String url = dh.getLP(lpId).getUrl();
-		chaptersUrl = LPArchiveApplication.baseURL + url;
+		lpUrl = LPArchiveApplication.baseURL + url;
 		
 		/* check if the chapter list is stored already. if so retrieve it,
 		 otherwise fetch it from the archive site. */
@@ -102,8 +102,7 @@ public class ChapterListActivity extends ListActivity {
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
-		Intent i = ChapterPageActivity.newInstance(this, chaptersUrl, lpId,
-				position);
+		Intent i = ChapterPageActivity.newInstance(this, lpUrl, lpId, position);
 		startActivity(i);
 	}
 	
@@ -153,7 +152,7 @@ public class ChapterListActivity extends ListActivity {
 		@Override
 		protected RetCode doInBackground(Void... unused) {
 			try {
-				Document doc = Jsoup.connect(chaptersUrl).get();
+				Document doc = Jsoup.connect(lpUrl).get();
 				Element e = doc.getElementById(CONTENT_ELEMENT);
 				
 				String links_to;
