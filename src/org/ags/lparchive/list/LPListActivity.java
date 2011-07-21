@@ -23,15 +23,26 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+/**
+ * A list of LPs which can be selected for a Chapter/Page View. The type of list
+ * can be specified with an intent action; LATEST_LIST_ACTION,
+ * ARCHIVE_LIST_ACTION, FAVORITE_LIST_ACTION. The list is also searchable via
+ * ACTION_SEARCH.
+ */
 public class LPListActivity extends ListActivity  {
 	private static final String TAG = "LPListActivity";
 	private static final int MENU_ITEM_VIEW = 0;
 	private static final int MENU_ITEM_TOGGLE_FAV = 1;
-	
-	// TODO comment explaining this 
+
+	/*
+	 * Records whether the favorites ListAdapter needs to be refreshed. this can
+	 * happen either immediately if the Activities intent is
+	 * FAVORITE_LIST_ACTION, or onResume if another intent did something to
+	 * trigger an update.
+	 */
 	private static boolean isDirty;
 	
-	private DataHelper dh;
+	private static DataHelper dh;
 	private String action;
 	
 	/**
@@ -79,7 +90,7 @@ public class LPListActivity extends ListActivity  {
 
 	@Override
 	protected void onResume() {
-		Log.d(TAG, "RESUME " + action);
+		// update the favorites list if it's being viewed and needs to be.
 		if(isDirty && LPArchiveApplication.FAVORITE_LIST_ACTION.equals(action)) {
 			setListAdapter(new LPAdapter(this, dh.getFavoriteLPs()));
 			isDirty = false;
@@ -106,13 +117,15 @@ public class LPListActivity extends ListActivity  {
 	private Intent getLPViewIntent(long id) {
 		LetsPlay lp = dh.getLP(id);
 		LPTypes type = lp.getType();
-		// video formatting is inconsistent, so load as page
-		// TODO hybrid category
-		if(type.equals(LPTypes.VIDEO)) {
+		/*
+		 * use chapter list for screenshot/text LPs, video/hybrid are
+		 * inconsistent so load as a regular page
+		 */
+		if (type.equals(LPTypes.SCREENSHOT) || type.equals(LPTypes.TEXT)) {
+			return ChapterListActivity.newInstance(this, id);
+		} else {
 			String pageUrl = LPArchiveApplication.baseURL + lp.getUrl();
 			return SimplePageActivity.newInstance(this, pageUrl);
-		} else {
-			return ChapterListActivity.newInstance(this, id);
 		}
 	}
 	
@@ -139,10 +152,7 @@ public class LPListActivity extends ListActivity  {
 		menu.add(0, MENU_ITEM_VIEW, 0, R.string.menu_viewLP).setIntent(
 				getLPViewIntent(info.id));
 
-		// Star toggling
-		DataHelper dh = ((LPArchiveApplication) getApplicationContext())
-				.getDataHelper();
-
+		// toggle the 'favorite' status of this LP
 		if (dh.isFavoriteLP(info.id)) {
 			menu.add(0, MENU_ITEM_TOGGLE_FAV, 0, R.string.menu_unfavLP);
 		} else {
@@ -165,11 +175,10 @@ public class LPListActivity extends ListActivity  {
 
 		Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
 		long id = cursor.getLong(cursor.getColumnIndex(DataHelper.KEY_ID));
-		Log.d(TAG, "id: " + id);
 		switch(item.getItemId()) {
 		case MENU_ITEM_TOGGLE_FAV:
 			dh.toggleFavoriteLP(id);
-			// need to refresh the list adapter
+			// need to refresh the list adapter, either now or later
 			if(LPArchiveApplication.FAVORITE_LIST_ACTION.equals(action))
 				setListAdapter(new LPAdapter(this, dh.getFavoriteLPs()));
 			else
@@ -193,7 +202,7 @@ public class LPListActivity extends ListActivity  {
 		} else {
 			String[] tags = getResources().getStringArray(R.array.lp_tags);
 			if (tagIndex >= tags.length) {
-				Log.e(TAG, "unrecognized tag");
+				Log.e(TAG, "unrecognized tag " + tagIndex);
 				return;
 			} else {
 				cursor = dh.tagSearch(tags[tagIndex].toLowerCase());

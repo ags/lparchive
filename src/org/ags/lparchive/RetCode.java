@@ -1,5 +1,6 @@
 package org.ags.lparchive;
 
+// Return codes for tasks  
 public enum RetCode {
 	SUCCESS, 
 	FETCH_FAILED,

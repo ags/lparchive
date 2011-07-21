@@ -28,43 +28,77 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
+/**
+ * Lists all the chapters in a LP. Selecting one starts a ChapterPageActivity
+ * with its contents.
+ */
 public class ChapterListActivity extends ListActivity {
+	private static final String TAG = "ChapterListActivity";
 	private long lpId;
 	private String chaptersUrl;
 	private DataHelper dh;
-	
+
+	/**
+	 * Creates an Intent to launch a ChapterListActivity for the LP with given
+	 * ID.
+	 * 
+	 * @return The created Intent.
+	 */
 	public static Intent newInstance(Context context, long lpId) {
 		Intent i = new Intent(context, ChapterListActivity.class);
 		i.putExtra("lpId", lpId);
 		return i;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.lp_list);
 		dh = ((LPArchiveApplication)getApplicationContext()).getDataHelper();
-		Bundle extras = getIntent().getExtras();
 		
+		Bundle extras = getIntent().getExtras();
 		lpId = extras.getLong("lpId");
 		String url = dh.getLP(lpId).getUrl();
 		chaptersUrl = LPArchiveApplication.baseURL + url;
-		boolean inDb = dh.getChapters(lpId).getCount() != 0;
-		if(!inDb) {
-			Log.d("LPA", "NOT IN DB");
-			new ChapterFetchTask(this).execute();
+		
+		/* check if the chapter list is stored already. if so retrieve it,
+		 otherwise fetch it from the archive site. */
+		Cursor chapters = dh.getChapters(lpId);
+		if(chapters.getCount() != 0) {
+			Log.d(TAG, "chapter already in db");
+			populate(chapters);
 		} else {
-			Log.d("LPA", "ALREADY IN DB");
-			populate();
+			Log.d(TAG, "chapter not in db");
+			new ChapterFetchTask(this).execute();
 		}
 	}
 	
-	/* retrieves a cursor for chapters and sets list adapter to use it */
+	/**
+	 * Fills list with this LPs chapters.
+	 */
 	private void populate() {
-		Cursor chapterCursor = dh.getChapters(lpId);
-		setListAdapter(new ChapterAdapter(ChapterListActivity.this,
-				chapterCursor));
+		populate(dh.getChapters(lpId));
 	}
 	
+	/**
+	 * Fills chapter list with content from a Cursor.
+	 * 
+	 * @param chapters
+	 *            Cursor to update with. If null, default chapters for this LP
+	 *            are used.
+	 */
+	private void populate(Cursor chapters) {
+		Cursor c = (chapters != null) ? chapters : dh.getChapters(lpId);
+		setListAdapter(new ChapterAdapter(ChapterListActivity.this, c));
+	}
+	
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
@@ -73,6 +107,10 @@ public class ChapterListActivity extends ListActivity {
 		startActivity(i);
 	}
 	
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();
@@ -80,9 +118,12 @@ public class ChapterListActivity extends ListActivity {
 	    return true;
 	}
 	
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-	    // Handle item selection
 	    switch (item.getItemId()) {
 //	    case R.id.download_lp:
 //	    	new DownloadLPTask(this, lpId).execute();
@@ -95,6 +136,9 @@ public class ChapterListActivity extends ListActivity {
 	    }
 	}
 	
+	/**
+	 * Downloads a chapter's index/introduction page, parses and stores it.
+	 */
 	class ChapterFetchTask extends ProgressTask {
 		private static final String CONTENT_ELEMENT = "content";
 		private static final String LINK_PREFIX = "Update%20";
@@ -103,24 +147,29 @@ public class ChapterListActivity extends ListActivity {
 			super(context, getString(R.string.fetching_wait));
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
 		protected RetCode doInBackground(Void... unused) {
 			try {
 				Document doc = Jsoup.connect(chaptersUrl).get();
 				Element e = doc.getElementById(CONTENT_ELEMENT);
-				// get all links matching "Update%20[N]/"
+				
 				String links_to;
+				
 				dh.getDb().beginTransaction();
+				// add an introduction chapter
 				dh.insertChapter(lpId, LPArchiveApplication.introURL,
 						"Introduction");
 				for (Element link : e.getElementsByTag("a")) {
 					links_to = link.attr("href");
-					if (links_to.startsWith(LINK_PREFIX)) {
+					// make sure all links match "Update%20[N]/"
+					if (links_to.startsWith(LINK_PREFIX))
 						dh.insertChapter(lpId, links_to, link.text());
-					}
 				}
 				dh.getDb().setTransactionSuccessful();
-				dh.getDb().endTransaction();
+				dh.getDb().endTransaction();	
 			} catch(IOException e) {
 				e.printStackTrace();
 				return RetCode.FETCH_FAILED;
@@ -129,7 +178,11 @@ public class ChapterListActivity extends ListActivity {
 			}
 			return RetCode.SUCCESS;
 		}
-
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
 		protected void onPostExecute(RetCode result) {
 			super.onPostExecute(result);
 			switch (result) {
@@ -139,13 +192,15 @@ public class ChapterListActivity extends ListActivity {
 						Toast.LENGTH_LONG).show();
 				break;
 			case DB_ERROR:
-				Toast.makeText(context, context.getString(R.string.db_error),
+				Toast.makeText(context, 
+						context.getString(R.string.db_error),
 						Toast.LENGTH_LONG).show();
 				break;
 			case SUCCESS:
 				populate();
 				break;
-			default:break;
+			default:
+				break;
 			}
 		}
 	}

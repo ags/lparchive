@@ -3,10 +3,14 @@ package org.ags.lparchive;
 import android.app.Application;
 import android.content.SharedPreferences;
 
+/**
+ * A browser for the Let's Play Archive (lparchive.org)
+ * @author Alex Smith
+ */
 public class LPArchiveApplication extends Application {
 	
 	private DataHelper dataHelper;
-	private SharedPreferences mPrefs;
+	private SharedPreferences prefs;
 
 	public static final String donateURL = "http://lparchive.org/donate";
 	public static final String baseURL = "http://lparchive.org";
@@ -19,33 +23,43 @@ public class LPArchiveApplication extends Application {
 	public static enum LPTypes {
 		SCREENSHOT, VIDEO, TEXT, HYBRID
 	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.dataHelper = new DataHelper(this);
-		mPrefs = getSharedPreferences("LPAPrefs", 0);
+		dataHelper = new DataHelper(this);
+		prefs = getSharedPreferences("LPAPrefs", 0);
 	}
-
+	
+	/**
+	 * @return DataHelper object
+	 */
 	public DataHelper getDataHelper() {
-		return this.dataHelper;
+		return dataHelper;
 	}
 
 	/**
 	 * Set whether the application has been launched before.
 	 */
 	public void setFirstRun(boolean firstRun) {
-		SharedPreferences.Editor edit = mPrefs.edit();
+		SharedPreferences.Editor edit = prefs.edit();
 		edit.putBoolean("firstRun", firstRun);
 		edit.commit();
 	}
-
+	
+	/**
+	 * @return True if this is the first time the application has been run.
+	 */
 	public boolean getFirstRun() {
-		return mPrefs.getBoolean("firstRun", true);
+		return prefs.getBoolean("firstRun", true);
 	}
 	
+	/**
+	 * @return The resource id for a given LP types icon, or -1 if none match.
+	 */
 	public static int getIconResource(LPTypes type) {
 		switch (type) {
 		case TEXT:
@@ -57,7 +71,7 @@ public class LPArchiveApplication extends Application {
 		case HYBRID:
 			return R.drawable.icon_hybrid;
 		default:
-			return R.drawable.icon;
+			return -1;
 		}
 	}
 }

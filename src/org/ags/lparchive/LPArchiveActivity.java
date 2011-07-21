@@ -1,6 +1,7 @@
 package org.ags.lparchive;
 
 import org.ags.lparchive.list.LPListActivity;
+
 import org.ags.lparchive.page.DonatePageActivity;
 import org.ags.lparchive.task.ArchiveFetchTask;
 
@@ -16,9 +17,19 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TabHost;
 
+/**
+ * The entry activity of the application. Displays latest, archive and favorite
+ * data views and a donate page through a tab layout.
+ */
 public class LPArchiveActivity extends TabActivity {
-	private static final String TAG = "LPArchiveActivity";
-	private int tagMenuSelected = 0;
+	private int tagMenuSelected = 0; // which tag we're searching by
+	private LPArchiveApplication appState;
+	
+	// tab positions
+	public static final int LATEST_TAB = 0;
+	public static final int ARCHIVE_TAB = 1;
+	public static final int FAVORITES_TAB = 2;
+	public static final int DONATE_TAB = 3;
 	
 	/**
 	 * {@inheritDoc}
@@ -27,12 +38,17 @@ public class LPArchiveActivity extends TabActivity {
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		setContentView(R.layout.main);
+		appState = ((LPArchiveApplication) getApplicationContext());
 	}
 	
+	/**
+	 * Sets up the main activity tabs and focuses the first one. 
+	 */
 	public void createTabs() {
 		TabHost tabHost = getTabHost();
 		TabHost.TabSpec spec;
 		Intent intent;
+		// clear current tabs to avoid duplicates
 		tabHost.clearAllTabs();
 		
 		intent = new Intent(this, LPListActivity.class)
@@ -66,7 +82,8 @@ public class LPArchiveActivity extends TabActivity {
 				.setContent(intent);
 		tabHost.addTab(spec);
 		
-		tabHost.setCurrentTab(0);
+		// focus on the first tab
+		tabHost.setCurrentTab(LATEST_TAB);
 	}
 	
 	/**
@@ -75,8 +92,6 @@ public class LPArchiveActivity extends TabActivity {
 	@Override
 	protected void onPostCreate(Bundle icicle) {
 		super.onPostCreate(icicle);
-		LPArchiveApplication appState = ((LPArchiveApplication) 
-				getApplicationContext());
 		if (appState.getFirstRun()) {
 			new ArchiveFetchTask(this).execute();
 		} else {
@@ -100,23 +115,23 @@ public class LPArchiveActivity extends TabActivity {
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-	    // Handle item selection
 	    switch (item.getItemId()) {
+	    // trigger archive search
 	    case R.id.search_archive:
-	    	getTabHost().setCurrentTab(1);
+	    	getTabHost().setCurrentTab(ARCHIVE_TAB);
 	    	getCurrentActivity().onSearchRequested();
 	    	return true;
+	    // search by tag
 	    case R.id.tag_filter:
-	    	getTabHost().setCurrentTab(1);
+	    	getTabHost().setCurrentTab(ARCHIVE_TAB);
 	    	createTagDialog().show();
 	    	return true;
+	    // update the archive list
 	    case R.id.refresh_archive:
-			LPArchiveApplication appState = ((LPArchiveApplication) 
-					getApplicationContext());
 	    	appState.getDataHelper().clearLatest();
-	    	Log.d(TAG, "latest cleared");
 	    	new ArchiveFetchTask(this).execute();
 	    	return true;
+	    // display preferences
 	    case R.id.preferences:
 	    	startActivity(new Intent(this, Preferences.class));
 	    	return true;
@@ -124,7 +139,12 @@ public class LPArchiveActivity extends TabActivity {
 	        return super.onOptionsItemSelected(item);
 	    }
 	}
-	
+
+	/**
+	 * Creates an AlertDialog that allows filtering of the archive by LP tags.
+	 * 
+	 * @return The created AlertDialog
+	 */
 	private AlertDialog createTagDialog() {
 		final LPListActivity act = (LPListActivity) 
 			getCurrentActivity();

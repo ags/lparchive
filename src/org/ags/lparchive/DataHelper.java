@@ -11,6 +11,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
+/**
+ * Handles data storage / retrieval operations for the application.
+ */
 public class DataHelper {
 	private static final String TAG = "DataHelper";
 	
