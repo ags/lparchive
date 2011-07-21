@@ -91,7 +91,7 @@ public class ChapterPageActivity extends PageActivity {
 			Chapter c = dh.getChapter(id);
 			boolean isIntro = c.isIntro();
 			String pageUrl = (isIntro) ? lpUrl : lpUrl + c.getUrl();
-
+			Log.d("LPA", "pageURL" + pageUrl);
 			new LoadPageFetchTask(this, pageUrl, isIntro).execute();
 		} else {
 			Log.e("LPA", "error moving to position");

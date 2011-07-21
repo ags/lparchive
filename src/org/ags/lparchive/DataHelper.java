@@ -328,8 +328,8 @@ public class DataHelper {
 		Chapter c = null;
 		if (cursor.moveToFirst()) {
 			do {
-				c = new Chapter(cursor.getString(INDEX_CHAPTER_TITLE), 
-						cursor.getString(INDEX_CHAPTER_URL));
+				c = new Chapter(cursor.getString(INDEX_CHAPTER_URL), 
+						cursor.getString(INDEX_CHAPTER_TITLE));
 			} while (cursor.moveToNext());
 		}
 		if (cursor != null && !cursor.isClosed()) {
