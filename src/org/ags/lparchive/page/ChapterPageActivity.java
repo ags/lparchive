@@ -84,10 +84,11 @@ public class ChapterPageActivity extends PageActivity {
 		}
 	}
 	
+	/** Loads the current chapter into the WebView. */
 	protected void loadPage() {
 		// ensure position points to somewhere valid
 		if (cursor.moveToPosition(position)) {
-			long id = cursor.getLong(0);
+			long id = cursor.getLong(DataHelper.INDEX_ID);
 			Chapter c = dh.getChapter(id);
 			boolean isIntro = c.isIntro();
 			String pageUrl = (isIntro) ? lpUrl : lpUrl + c.getUrl();
@@ -145,7 +146,7 @@ public class ChapterPageActivity extends PageActivity {
 	    }
 	}
 
-	/** Loads page into this activities Webview. */
+	/** Fetches & loads a page into this activities WebView. */
 	class LoadPageFetchTask extends PageFetchTask {
 		public LoadPageFetchTask(Activity activity, String url, boolean isIntro) {
 			super(activity, url, isIntro);

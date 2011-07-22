@@ -242,7 +242,7 @@ public class DataHelper {
 	 * Marks a given LP as recent addition to the archive.
 	 * @return Row ID on success, -1 otherwise.
 	 */
-	public long markRecentLetsPlay(long id) {
+	public long markLatestLP(long id) {
 		latestLpStmnt.bindLong(1, id);
 		return latestLpStmnt.executeInsert();
 	}

@@ -14,18 +14,29 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+/**
+ * Parses lparchive.org and stores attributes of all LPs found. Any stored
+ * 'latest' LPs are flushed and replaced with any new ones found. Re-running
+ * the task should skip any existing LPs.
+ */
 public class ArchiveFetchTask extends ProgressTask {
-	private static final String LATEST_DIV = "latest";
 	public static final String TAG = "ArchiveFetchTask";
+	private static final String LATEST_DIV = "latest";
+	// author in page is 'by xxxx' - remove first 3 characters
+	private static final int AUTHOR_START = 3;
 	
-	public ArchiveFetchTask(Activity activity) {
-		super(activity, activity.getString(R.string.fetching_wait));
+	public ArchiveFetchTask(Context context) {
+		super(context, context.getString(R.string.fetching_wait));
 	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	protected RetCode doInBackground(Void... unused) {
 		Document doc = null;
 		try {
@@ -37,35 +48,40 @@ public class ArchiveFetchTask extends ProgressTask {
 			e.printStackTrace();
 			return RetCode.FETCH_FAILED;
 		}
+		
 		LPArchiveApplication appState = ((LPArchiveApplication) 
 				context.getApplicationContext());
-
 		DataHelper dh = appState.getDataHelper();
 		
-		// parse the page for "archive" entries
+		// manually setup db for bulk insertion to speed things up
 		dh.getDb().beginTransaction();
 		String url, game, author, type;
-		// TODO move lp_id to outside loop
+		long id = -1;
+		// parse the page for "archive" entries
 		for (Element e : doc.getElementsByTag("tr")) {
 			Elements e_url = e.getElementsByClass("lp");
-			// skip blank urls
+			// skip blank URLs
 			if (e_url.isEmpty())
 				continue;
+			
 			url = e_url.first().attr("href");
 			// skip the random page
 			if (url.equals("/random"))
 				continue;
+			
 			game = e.getElementsByTag("strong").first().text();
-			author = e.getElementsByTag("span").first().text().substring(3);
+			author = e.getElementsByTag("span").first().text().substring(
+					AUTHOR_START);
 			type = e.getElementsByTag("img").first().attr("alt");
-			// insert
 			try {
-				long lp_id = dh.insertLetsPlay(game, author, url, 
+				id = dh.insertLetsPlay(game, author, url, 
 						LPTypes.valueOf(type.toUpperCase()));
-				if (lp_id != -1) {
-					for (Element tag : e.getElementsByClass("tag"))
-						dh.addTag(lp_id, tag.text());
-					Log.d(TAG, "inserted LP " + lp_id);
+				// if we succeeded creating an LP, extract & add any tags
+				if (id != -1) {
+					for (Element tag : e.getElementsByClass("tag")) {
+						dh.addTag(id, tag.text());
+					}
+					Log.d(TAG, "inserted LP " + id);
 				} else {
 					Log.e(TAG, "failed to insert " + game);
 				}
@@ -73,30 +89,36 @@ public class ArchiveFetchTask extends ProgressTask {
 				Log.w(TAG, ex.getMessage());
 			}
 		}
+		// commit  all insertions
 		dh.getDb().setTransactionSuccessful();
 		dh.getDb().endTransaction();
-		Log.d(TAG, "archive built");
 		
-		// parse the page for "latest" entries
+		// parse the page for "latest" entries	
 		dh.getDb().beginTransaction();
 		Element latest = doc.getElementById(LATEST_DIV);
-		long id;
+		
+		/* extract game/author pairs, lookup in DB. if there's an entry, mark it
+		 * as a 'latest' LP */
 		for (Element e : latest.getElementsByTag("li")) {
 			game = e.getElementsByTag("strong").first().text();
-			author = e.getElementsByTag("span").first().text().substring(3);
+			author = e.getElementsByTag("span").first().text().substring(
+					AUTHOR_START);
 			id = dh.getID(game, author);
-			if(id != -1)
-				dh.markRecentLetsPlay(id);
+			if(id != -1) {
+				dh.markLatestLP(id);
+			}
 		}
 		dh.getDb().setTransactionSuccessful();
 		dh.getDb().endTransaction();
-		Log.d(TAG, "latest built");
 		
-		// application has run
+		// application has run TODO not really first run
 		appState.setFirstRun(false);
 		return RetCode.SUCCESS;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void onPostExecute(RetCode result) {
 		super.onPostExecute(result);
@@ -106,7 +128,6 @@ public class ArchiveFetchTask extends ProgressTask {
 					Toast.LENGTH_LONG).show();
 			break;
 		case SUCCESS:
-			Log.d(TAG, "making tabs");
 			((LPArchiveActivity) context).createTabs();
 			break;
 		default:
