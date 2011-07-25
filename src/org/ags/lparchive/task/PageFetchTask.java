@@ -42,6 +42,9 @@ public abstract class PageFetchTask extends ProgressTask {
 		this.isIntro = isIntro;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected RetCode doInBackground(Void... unused) {
 		try {	
@@ -57,6 +60,9 @@ public abstract class PageFetchTask extends ProgressTask {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void onPostExecute(RetCode result) {
 		super.onPostExecute(result);
@@ -80,6 +86,7 @@ public abstract class PageFetchTask extends ProgressTask {
 				.getDefaultSharedPreferences(lpaa);
 		boolean darkTheme = prefs.getBoolean("darkThemePref", true);
 		boolean inDb = false;
+		// TODO load page from sdcard
 		if (inDb) {
 			// get path from db
 			// read in html to string

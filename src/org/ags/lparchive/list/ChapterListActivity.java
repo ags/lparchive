@@ -155,7 +155,7 @@ public class ChapterListActivity extends ListActivity {
 				Document doc = Jsoup.connect(lpUrl).get();
 				Element e = doc.getElementById(CONTENT_ELEMENT);
 				
-				String links_to;
+				String links_to, title;
 				
 				dh.getDb().beginTransaction();
 				// add an introduction chapter
@@ -164,13 +164,26 @@ public class ChapterListActivity extends ListActivity {
 				for (Element link : e.getElementsByTag("a")) {
 					links_to = link.attr("href");
 					// make sure all links match "Update%20[N]/"
-					if (links_to.startsWith(LINK_PREFIX))
-						dh.insertChapter(lpId, links_to, link.text());
+					title = link.text();
+					/*
+					 * if no update title is available, last resort is to check
+					 * for an image (as in http://lparchive.org/Last-Bible/) and
+					 * try to format the filename.
+					 */
+					if(title.equals("")) {
+						Element img = link.getElementsByTag("img").first();
+						if(img != null) {
+							title = img.attr("src").split("\\.")[0].replace('_', ' ');
+						}
+					}
+					if (links_to.startsWith(LINK_PREFIX)) {
+						Log.d(TAG, "title: " + title);
+						dh.insertChapter(lpId, links_to, title);
+					}
 				}
 				dh.getDb().setTransactionSuccessful();
 				dh.getDb().endTransaction();	
 			} catch(IOException e) {
-				e.printStackTrace();
 				return RetCode.FETCH_FAILED;
 			} catch(SQLException e) {
 				return RetCode.DB_ERROR;
