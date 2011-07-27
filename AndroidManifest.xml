@@ -22,6 +22,7 @@
 				<action android:name="org.ags.lparchive.LATEST_LIST_ACTION" />
 				<action android:name="org.ags.lparchive.ARCHIVE_LIST_ACTION" />
 				<action android:name="org.ags.lparchive.FAVORITE_LIST_ACTION" />
+<!--				<action android:name="org.ags.lparchive.ARCHIVE_REFRESH" /> -->
 			</intent-filter>
 			<meta-data android:name="android.app.searchable" android:resource="@xml/searchable" />
 		</activity>

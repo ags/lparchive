@@ -34,6 +34,7 @@ import android.widget.Toast;
  */
 public class ChapterListActivity extends ListActivity {
 	private static final String TAG = "ChapterListActivity";
+	private static final int LONG_LIST = 25;
 	private long lpId;
 	private String lpUrl;
 	private DataHelper dh;
@@ -92,6 +93,9 @@ public class ChapterListActivity extends ListActivity {
 	 */
 	private void populate(Cursor chapters) {
 		Cursor c = (chapters != null) ? chapters : dh.getChapters(lpId);
+		// enable fast scrolling if this is a long list
+		if(c.getCount() >= LONG_LIST)
+			getListView().setFastScrollEnabled(true);
 		setListAdapter(new ChapterAdapter(ChapterListActivity.this, c));
 	}
 	

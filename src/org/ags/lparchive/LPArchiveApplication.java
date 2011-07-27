@@ -19,6 +19,7 @@ public class LPArchiveApplication extends Application {
 	public static final String LATEST_LIST_ACTION = "org.ags.lparchive.LATEST_LIST_ACTION";
 	public static final String ARCHIVE_LIST_ACTION = "org.ags.lparchive.ARCHIVE_LIST_ACTION";
 	public static final String FAVORITE_LIST_ACTION = "org.ags.lparchive.FAVORITE_LIST_ACTION";
+	public static final String ARCHIVE_REFRESH = "org.ags.lparchive.ARCHIVE_REFRESH";
 	
 	public static final boolean DEBUG = true;
 	
@@ -34,6 +35,7 @@ public class LPArchiveApplication extends Application {
 		super.onCreate();
 		dataHelper = new DataHelper(this);
 		prefs = getSharedPreferences("LPAPrefs", 0);
+		dataHelper.clearLatest();
 	}
 	
 	/**

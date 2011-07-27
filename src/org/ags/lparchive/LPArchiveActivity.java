@@ -83,6 +83,7 @@ public class LPArchiveActivity extends TabActivity {
 		
 		// focus on the first tab
 		tabHost.setCurrentTab(LATEST_TAB);
+
 	}
 	
 	/**
@@ -160,4 +161,6 @@ public class LPArchiveActivity extends TabActivity {
         .setNegativeButton(R.string.tag_dialog_cancel, null)
         .create();
 	}
+	
+
 }

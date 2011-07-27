@@ -15,6 +15,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -86,7 +87,7 @@ public class ArchiveFetchTask extends ProgressTask {
 					Log.e(TAG, "failed to insert " + game);
 				}
 			} catch (DuplicateLPException ex) {
-				Log.w(TAG, ex.getMessage());
+//				Log.w(TAG, ex.getMessage());
 			}
 		}
 		// commit  all insertions
@@ -128,7 +129,11 @@ public class ArchiveFetchTask extends ProgressTask {
 					Toast.LENGTH_LONG).show();
 			break;
 		case SUCCESS:
+			// setup tab view
 			((LPArchiveActivity) context).createTabs();
+			// announce archive data may have changed
+			Intent i = new Intent(LPArchiveApplication.ARCHIVE_REFRESH);
+			context.sendBroadcast(i);
 			break;
 		default:
 			break;

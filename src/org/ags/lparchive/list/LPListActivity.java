@@ -11,7 +11,10 @@ import org.ags.lparchive.page.SimplePageActivity;
 
 import android.app.ListActivity;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
@@ -43,6 +46,7 @@ public class LPListActivity extends ListActivity  {
 	private static boolean isDirty;
 	
 	private static DataHelper dh;
+	private Intent intent;
 	private String action;
 	
 	/**
@@ -54,11 +58,24 @@ public class LPListActivity extends ListActivity  {
 
 		setContentView(R.layout.lp_list);
 		isDirty = false;
-		Cursor cursor = null;
+
 		LPArchiveApplication appState = ((LPArchiveApplication) getApplicationContext());
 		dh = appState.getDataHelper();
-		Intent intent = getIntent();
-		action = intent.getAction();
+		intent = getIntent();
+		action =  intent.getAction();
+		
+		populate();
+		
+		// enable fast scrolling - this is a long list
+		if (LPArchiveApplication.ARCHIVE_LIST_ACTION.equals(action))
+			getListView().setFastScrollEnabled(true);
+		
+		// allow context menu (long click) on LPs
+		registerForContextMenu(getListView());
+	}
+	
+	private void populate() {
+		Cursor cursor = null;
 		
 		// search archive by game name
 		if (Intent.ACTION_SEARCH.equals(action)) {
@@ -71,7 +88,7 @@ public class LPListActivity extends ListActivity  {
 		// show latest LPs
 		} else if (LPArchiveApplication.LATEST_LIST_ACTION.equals(action)) {
 			cursor = dh.getLatestLPs();
-		// show favourite LPs
+		// show favorite LPs
 		} else if (LPArchiveApplication.FAVORITE_LIST_ACTION.equals(action)) {
 			cursor = dh.getFavoriteLPs();
 		// show all LPs
@@ -80,14 +97,13 @@ public class LPListActivity extends ListActivity  {
 			// enable fast scrolling - this is a long list
 			getListView().setFastScrollEnabled(true);
 		}
-		
-		// allow context menu (long click) on LPs
-		registerForContextMenu(getListView());
-		
-		// populate the listview
+		// populate the ListView
 		setListAdapter(new LPAdapter(this, cursor));
 	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void onResume() {
 		// update the favorites list if it's being viewed and needs to be.
@@ -95,6 +111,14 @@ public class LPListActivity extends ListActivity  {
 			setListAdapter(new LPAdapter(this, dh.getFavoriteLPs()));
 			isDirty = false;
 		}
+		
+		// listen for archive refresh messages
+		// TODO move to onCreate() ?
+		IntentFilter filter = new IntentFilter(
+				LPArchiveApplication.ARCHIVE_REFRESH);
+		ReloadBroadcastReceiver r = new ReloadBroadcastReceiver();
+		registerReceiver(r, filter);
+
 		super.onResume();
 	}
 
@@ -211,4 +235,11 @@ public class LPListActivity extends ListActivity  {
 		setListAdapter(new LPAdapter(this, cursor));
 	}
 	
+	/** Handles broadcasts by re-populating the ListView */
+	public class ReloadBroadcastReceiver extends BroadcastReceiver {       
+        @Override
+        public void onReceive(Context context, Intent intent) {
+        	populate();
+        }
+	}
 }
