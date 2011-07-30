@@ -35,7 +35,6 @@ public class LPArchiveApplication extends Application {
 		super.onCreate();
 		dataHelper = new DataHelper(this);
 		prefs = getSharedPreferences("LPAPrefs", 0);
-		dataHelper.clearLatest();
 	}
 	
 	/**
