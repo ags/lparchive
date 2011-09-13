@@ -15,16 +15,20 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import android.app.ListActivity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -34,11 +38,14 @@ import android.widget.Toast;
  */
 public class ChapterListActivity extends ListActivity {
 	private static final String TAG = "ChapterListActivity";
+	private static final int MENU_ITEM_VIEW = 0;
+	private static final int MENU_ITEM_TOGGLE_READ = 1;
+	private static final int MENU_ITEM_TOGGLE_UNREAD = 2;
 	private static final int LONG_LIST = 25;
 	private long lpId;
 	private String lpUrl;
 	private DataHelper dh;
-
+	
 	/**
 	 * Creates an Intent to launch a ChapterListActivity for the LP with given
 	 * ID.
@@ -75,6 +82,18 @@ public class ChapterListActivity extends ListActivity {
 			Log.d(TAG, "chapter not in db");
 			new ChapterFetchTask(this).execute();
 		}
+
+		// allow context menu (long click)
+		registerForContextMenu(getListView());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onResume() {
+		super.onResume();
+		populate();
 	}
 	
 	/**
@@ -121,6 +140,66 @@ public class ChapterListActivity extends ListActivity {
 	    return true;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+			ContextMenuInfo menuInfo) {
+		AdapterView.AdapterContextMenuInfo info;
+		try {
+			info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+		} catch (ClassCastException e) {
+			Log.e(TAG, "bad menuInfo", e);
+			return;
+		}
+
+		Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
+		
+		// construct menu header / items
+		String title = cursor.getString(DataHelper.INDEX_CHAPTER_TITLE);
+		menu.setHeaderTitle(title);
+		menu.add(0, MENU_ITEM_VIEW, 0, R.string.menu_viewChapter).setIntent(
+				ChapterPageActivity.newInstance(this, lpUrl, lpId,
+						info.position));
+
+		// toggle the 'read' status of this chapter
+		long read = cursor.getLong(DataHelper.INDEX_CHAPTER_READ);
+		if (read == 0) {
+			menu.add(0, MENU_ITEM_TOGGLE_READ, 0, R.string.menu_markRead);
+		} else {
+			menu.add(0, MENU_ITEM_TOGGLE_UNREAD, 0, R.string.menu_markUnread);
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterView.AdapterContextMenuInfo info;
+		try {
+			info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+		} catch (ClassCastException e) {
+			Log.e(TAG, "bad menuInfo", e);
+			return false;
+		}
+
+		Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
+		long id = cursor.getLong(cursor.getColumnIndex(DataHelper.KEY_ID));
+		switch(item.getItemId()) {
+		case MENU_ITEM_TOGGLE_UNREAD:
+			dh.markChapterUnread(id);
+			populate();
+			return true;
+		case MENU_ITEM_TOGGLE_READ:
+			dh.markChapterRead(id);
+			populate();
+			return true;
+		}
+		
+		return super.onContextItemSelected(item);
+	}
 	
 	/**
 	 * {@inheritDoc}
@@ -219,5 +298,13 @@ public class ChapterListActivity extends ListActivity {
 				break;
 			}
 		}
+	}
+	
+	/** Handles broadcasts by re-populating the ListView */
+	public class ReloadBroadcastReceiver extends BroadcastReceiver {       
+        @Override
+        public void onReceive(Context context, Intent intent) {
+        	populate();
+        }
 	}
 }

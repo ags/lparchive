@@ -18,7 +18,7 @@ public class DataHelper {
 	private static final String TAG = "DataHelper";
 	
 	private static final String DATABASE_NAME = "lparchive.db";
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 	
 	// tables
 	public static final String TABLE_ARCHIVE = "archive";
@@ -55,6 +55,8 @@ public class DataHelper {
 	public static final int INDEX_CHAPTER_URL = 2;
 	public static final String KEY_CHAPTER_TITLE = "title"; // 3
 	public static final int INDEX_CHAPTER_TITLE = 3;
+	public static final String KEY_CHAPTER_READ = "isRead"; // 4
+	public static final int INDEX_CHAPTER_READ = 4;
 	
 	public static final String KEY_FAVS_LP_ID = "lpId"; // 1
 	public static final int INDEX_FAVS_LP_ID = 1;
@@ -74,9 +76,10 @@ public class DataHelper {
 		TABLE_TAGS, KEY_ID, KEY_TAG_LP_ID, KEY_TAG);
 	
 	private static final String SCHEMA_TABLE_CHAPTERS = String.format(
-		"CREATE TABLE %s (%s INTEGER PRIMARY KEY, %s INTEGER, %s TEXT, %s TEXT)",
+		"CREATE TABLE %s (%s INTEGER PRIMARY KEY, %s INTEGER, %s TEXT, " +
+		"%s TEXT, %s INTEGER)",
 		TABLE_CHAPTERS, KEY_ID, KEY_CHAPTER_LP_ID, KEY_CHAPTER_URL, 
-		KEY_CHAPTER_TITLE);
+		KEY_CHAPTER_TITLE, KEY_CHAPTER_READ);
 	
 	private static final String SCHEMA_TABLE_LATEST = String.format(
 		"CREATE TABLE %s (%s INTEGER PRIMARY KEY, %s INTEGER)",
@@ -99,7 +102,8 @@ public class DataHelper {
 		KEY_ID, 
 		KEY_CHAPTER_LP_ID, 
 		KEY_CHAPTER_URL, 
-		KEY_CHAPTER_TITLE 
+		KEY_CHAPTER_TITLE,
+		KEY_CHAPTER_READ
 	};
 	
 	private static final String[] projectFavorite = new String[] {
@@ -147,6 +151,11 @@ public class DataHelper {
 	private static final String INSERT_LATEST = String.format(
 		"insert into %s (%s) values (?)", TABLE_LATEST, KEY_LATEST_LP_ID);
 	
+	private SQLiteStatement markReadStmnt;
+	private static final String MARK_READ = String.format(
+		"update %s SET %s = ? WHERE %s = ?", 
+		TABLE_CHAPTERS, KEY_CHAPTER_READ, KEY_ID);
+	
 	// archive project as string for convenience
 	private static final String ARCHIVE_PROJECT = String.format(
 		"%s.%s, %s.%s, %s.%s, %s.%s, %s.%s",
@@ -193,6 +202,7 @@ public class DataHelper {
 		insertChapterStmnt = db.compileStatement(INSERT_CHAPTER);
 		insertFavStmnt = db.compileStatement(INSERT_FAV);
 		deleteFavStmnt = db.compileStatement(DELETE_FAV);
+		markReadStmnt = db.compileStatement(MARK_READ);
 	}
 	
 	/** Returns the database. Preferred access is through helper methods. */
@@ -392,7 +402,7 @@ public class DataHelper {
 			insertFavStmnt.executeInsert();
 		}
 	}
-	
+		
 	/** Returns true if the LP with given ID is marked a favorite. */
 	public boolean isFavoriteLP(long id) {
 		Cursor cursor = this.db.query(TABLE_FAVORITES, projectFavorite, 
@@ -404,6 +414,20 @@ public class DataHelper {
 	/** Returns a Cursor to the archive attributes of favorite LPs */ 
 	public Cursor getFavoriteLPs() {
 		return this.db.rawQuery(FAV_JOIN, null);
+	}
+	
+	public void markChapterRead(long chapterId) {
+		markChapter(chapterId, 1);
+	}
+	
+	public void markChapterUnread(long chapterId) {
+		markChapter(chapterId, 0);
+	}
+	
+	private void markChapter(long chapterId, int read) {
+		markReadStmnt.bindLong(1, read);
+		markReadStmnt.bindLong(2, chapterId);
+		markReadStmnt.executeInsert();
 	}
 	
 	/** Clears the list of latest LPs */
@@ -437,13 +461,34 @@ public class DataHelper {
 		 */
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			Log.w(TAG, "upgrading database - dropping tables");
+			if(newVersion > oldVersion) {
+				Log.w(TAG, "db upgrade needed");
+				for(int i = oldVersion; i < newVersion; i++) {
+					int nextVersion = i + 1;
+					Log.w(TAG, "upgrade from " + i + " to " + nextVersion);
+					switch(nextVersion) {
+						case 2:
+							upgradeToV2(db);
+							break;
+					}
+				}			
+			} else {
+				clearDatabase(db);
+				onCreate(db);
+			}
+		}
+
+		private void clearDatabase(SQLiteDatabase db) {
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARCHIVE);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_TAGS);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAPTERS);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_FAVORITES);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_LATEST);
-			onCreate(db);
+		}
+
+		private void upgradeToV2(SQLiteDatabase db) {
+			db.execSQL(String.format("ALTER TABLE %s ADD COLUMN %s INTEGER;",
+					TABLE_CHAPTERS, KEY_CHAPTER_READ));
 		}
 	}
 

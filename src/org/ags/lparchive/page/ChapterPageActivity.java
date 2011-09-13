@@ -22,12 +22,12 @@ import android.view.MenuItem;
  */
 public class ChapterPageActivity extends PageActivity {
 	public static final int MENU_PREVIOUS = 0;
-	public static final int MENU_NEXT = 0;
+	public static final int MENU_NEXT = 1;
 	
 	private Cursor cursor;
 	private String lpUrl;
 	private long lpId;
-	private int position;
+	private int position, positionDelta;
 	private DataHelper dh;
 	
 	/**
@@ -86,13 +86,16 @@ public class ChapterPageActivity extends PageActivity {
 	
 	/** Loads the current chapter into the WebView. */
 	protected void loadPage() {
+		// apply requested position change
+		position += positionDelta;
+		
 		// ensure position points to somewhere valid
 		if (cursor.moveToPosition(position)) {
 			long id = cursor.getLong(DataHelper.INDEX_ID);
 			Chapter c = dh.getChapter(id);
 			boolean isIntro = c.isIntro();
 			String pageUrl = (isIntro) ? lpUrl : lpUrl + c.getUrl();
-			Log.d("LPA", "pageURL" + pageUrl);
+	
 			new LoadPageFetchTask(this, pageUrl, isIntro).execute();
 		} else {
 			Log.e("LPA", "error moving to position");
@@ -133,12 +136,12 @@ public class ChapterPageActivity extends PageActivity {
 	    	return true;
     	// load previous chapter
 	    case R.id.prev_chapter:
-	    	position--;
+	    	positionDelta = -1;
 	    	loadPage();
 	    	return true;
     	// load next chapter
 	    case R.id.next_chapter:
-	    	position++;
+	    	positionDelta = 1;
 	    	loadPage();
 	    	return true;
 	    default:
@@ -148,10 +151,12 @@ public class ChapterPageActivity extends PageActivity {
 
 	/** Fetches & loads a page into this activities WebView. */
 	class LoadPageFetchTask extends PageFetchTask {
-		public LoadPageFetchTask(Activity activity, String url, boolean isIntro) {
-			super(activity, url, isIntro);
+
+		public LoadPageFetchTask(Activity activity, String pageUrl,
+				boolean isIntro) {
+			super(activity, pageUrl, isIntro);
 		}
-		
+
 		/**
 		 * {@inheritDoc}
 		 */
@@ -161,6 +166,11 @@ public class ChapterPageActivity extends PageActivity {
 			if (result.equals(RetCode.SUCCESS)) {
 				webview.loadDataWithBaseURL(url, html, "text/html", "utf-8",
 						null);
+				long id = cursor.getLong(DataHelper.INDEX_ID);
+				dh.markChapterRead(id);
+			} else {
+				// undo position change
+				position -= positionDelta;
 			}
 		}
 	}

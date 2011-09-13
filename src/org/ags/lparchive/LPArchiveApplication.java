@@ -20,6 +20,7 @@ public class LPArchiveApplication extends Application {
 	public static final String ARCHIVE_LIST_ACTION = "org.ags.lparchive.ARCHIVE_LIST_ACTION";
 	public static final String FAVORITE_LIST_ACTION = "org.ags.lparchive.FAVORITE_LIST_ACTION";
 	public static final String ARCHIVE_REFRESH = "org.ags.lparchive.ARCHIVE_REFRESH";
+	public static final String CHAPTER_LIST_REFRESH = "org.ags.lparchive.CHAPTER_LIST_REFRESH";
 	
 	public static final boolean DEBUG = true;
 	

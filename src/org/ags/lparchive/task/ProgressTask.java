@@ -32,7 +32,12 @@ public abstract class ProgressTask extends AsyncTask<Void, Integer, RetCode> {
 	@Override
 	protected void onPostExecute(RetCode result) {
 		super.onPostExecute(result);
-		dialog.dismiss();
+		// some devices can crash here occasionally, this should handle that
+		try {
+			dialog.dismiss();
+		} catch (Exception e) {
+			// nothing
+		}
 	}
 
 }

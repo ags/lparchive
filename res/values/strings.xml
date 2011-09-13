@@ -1,15 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<!-- App Stuff -->
-    <string name="app_name">Let\'s Play! Archive</string>
+    <string name="app_name">Let\'s Play Archive</string>
     <string name="package_name">org.ags.lparchive</string>
-    
-    <!-- URLs (make constants?) 
-    <string name="donate_url">http://lparchive.org/donate</string>
-    <string name="base_url">http://lparchive.org/</string>
-    <string name="intro_url">/introduction</string>
-    -->
-    
+        
 	<!-- Labels -->
     <string name="tab_latest">Latest</string>
     <string name="tab_archive">Archive</string>
@@ -29,6 +23,9 @@
     <string name="menu_viewLP">View LP</string>
     <string name="menu_favLP">Add to favorites</string>
     <string name="menu_unfavLP">Remove from favorites</string>
+    <string name="menu_viewChapter">View Chapter</string>
+    <string name="menu_markRead">Mark Read</string>
+    <string name="menu_markUnread">Mark Unread</string>
     
     <!-- LP tags -->
     <string-array name="lp_tags">
@@ -50,8 +47,10 @@
     </string-array>
     
     <!-- Preferences -->
-    <string name="dark_theme_title">Dark Theme</string>
-    <string name="dark_theme_pref_summary">Use a dark theme when viewing pages</string>
+    <string name="pref_dark_theme_title">Dark Theme</string>
+    <string name="pref_dark_theme_summary">Use a dark theme when viewing pages</string>
+    <string name="pref_mark_read_title">Mark Read Items</string>
+    <string name="pref_mark_read_summary">Grey out chapters you\'ve already read</string>
     
     <!-- Messages -->
     <string name="empty_list">No entries found.</string>

@@ -2,8 +2,14 @@
 <PreferenceScreen
   xmlns:android="http://schemas.android.com/apk/res/android">
     <CheckBoxPreference 
-    	android:title="@string/dark_theme_title"
+    	android:title="@string/pref_dark_theme_title"
         android:defaultValue="true"
-        android:summary="@string/dark_theme_pref_summary"
+        android:summary="@string/pref_dark_theme_summary"
         android:key="darkThemePref"/>
+        
+    <CheckBoxPreference 
+    	android:title="@string/pref_mark_read_title"
+        android:defaultValue="true"
+        android:summary="@string/pref_mark_read_summary"
+        android:key="markReadPref"/>
 </PreferenceScreen>
