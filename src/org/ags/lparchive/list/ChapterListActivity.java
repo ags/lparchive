@@ -93,7 +93,9 @@ public class ChapterListActivity extends ListActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		int p = getSelectedItemPosition();
 		populate();
+		setSelection(p);
 	}
 	
 	/**

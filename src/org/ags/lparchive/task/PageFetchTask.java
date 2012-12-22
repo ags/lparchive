@@ -86,11 +86,9 @@ public abstract class PageFetchTask extends ProgressTask {
 				.getDefaultSharedPreferences(lpaa);
 		boolean darkTheme = prefs.getBoolean("darkThemePref", true);
 		boolean inDb = false;
-		// TODO load page from sdcard
+	
 		if (inDb) {
-			// get path from db
-			// read in html to string
-			// Document doc = Jsoup.parse(html);
+			// TODO load page from sdcard
 			return null;
 		} else {
 			Document doc = Jsoup.connect(url).get();
@@ -114,6 +112,7 @@ public abstract class PageFetchTask extends ProgressTask {
 			if (darkTheme)
 				content.prepend(CSS_DARK);
 			
+			Log.d("LPA", content.html());
 			return content;
 		}
 	}

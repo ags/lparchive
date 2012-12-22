@@ -3,16 +3,18 @@ package org.ags.lparchive.task;
 import java.io.IOException;
 
 import org.ags.lparchive.DataHelper;
+import org.ags.lparchive.DataHelper.DuplicateLPException;
 import org.ags.lparchive.LPArchiveActivity;
 import org.ags.lparchive.LPArchiveApplication;
+import org.ags.lparchive.LPArchiveApplication.LPTypes;
 import org.ags.lparchive.R;
 import org.ags.lparchive.RetCode;
-import org.ags.lparchive.DataHelper.DuplicateLPException;
-import org.ags.lparchive.LPArchiveApplication.LPTypes;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import android.content.Context;
 import android.content.Intent;
@@ -29,9 +31,10 @@ public class ArchiveFetchTask extends ProgressTask {
 	private static final String LATEST_DIV = "latest";
 	// author in page is 'by xxxx' - remove first 3 characters
 	private static final int AUTHOR_START = 3;
+	private static final int JSON_START = 8;
 	
 	public ArchiveFetchTask(Context context) {
-		super(context, context.getString(R.string.fetching_wait));
+		super(context, context.getString(R.string.archive_fetch));
 	}
 	
 	/**
@@ -40,11 +43,23 @@ public class ArchiveFetchTask extends ProgressTask {
 	@Override
 	protected RetCode doInBackground(Void... unused) {
 		Document doc = null;
+		JSONArray lpJson = null;
 		try {
 			Log.d(TAG, "begin document fetch");
 			doc = Jsoup.connect(LPArchiveApplication.baseURL).get();
 			Log.d(TAG, "retrieved document");
+			for (Element e : doc.getElementsByTag("script")) {
+				if (e.html().startsWith("tocdata")) {
+					String json = e.html().substring(JSON_START);
+					lpJson = new JSONArray(json);
+				}
+			}
+
 		} catch (IOException e) {
+			Log.e(TAG, "failed to retrieve document");
+			e.printStackTrace();
+			return RetCode.FETCH_FAILED;
+		} catch (JSONException e) {
 			Log.e(TAG, "failed to retrieve document");
 			e.printStackTrace();
 			return RetCode.FETCH_FAILED;
@@ -59,37 +74,33 @@ public class ArchiveFetchTask extends ProgressTask {
 		String url, game, author, type;
 		long id = -1;
 		// parse the page for "archive" entries
-		for (Element e : doc.getElementsByTag("tr")) {
-			Elements e_url = e.getElementsByClass("lp");
-			// skip blank URLs
-			if (e_url.isEmpty())
-				continue;
-			
-			url = e_url.first().attr("href");
-			// skip the random page
-			if (url.equals("/random"))
-				continue;
-			
-			game = e.getElementsByTag("strong").first().text();
-			author = e.getElementsByTag("span").first().text().substring(
-					AUTHOR_START);
-			type = e.getElementsByTag("img").first().attr("alt");
+		for (int i = 0; i < lpJson.length(); i++) {
 			try {
+				JSONObject lp = lpJson.getJSONObject(i);
+				game = lp.getString("t");
+				type = tyToType(lp.getString("ty"));
+				url = lp.getString("u");
+				author = lp.getString("a");
+				
 				id = dh.insertLetsPlay(game, author, url, 
-						LPTypes.valueOf(type.toUpperCase()));
+						LPTypes.valueOf(type));
 				// if we succeeded creating an LP, extract & add any tags
 				if (id != -1) {
-					for (Element tag : e.getElementsByClass("tag")) {
-						dh.addTag(id, tag.text());
+					JSONArray tags = lp.getJSONArray("tg");
+					for(int j = 0; j < tags.length(); j++) {
+						dh.addTag(id, tags.getString(j));
 					}
 					Log.d(TAG, "inserted LP " + id);
 				} else {
 					Log.e(TAG, "failed to insert " + game);
 				}
+			} catch (JSONException e) {
+				Log.w(TAG, e.getMessage());
 			} catch (DuplicateLPException ex) {
 //				Log.w(TAG, ex.getMessage());
 			}
 		}
+
 		// commit  all insertions
 		dh.getDb().setTransactionSuccessful();
 		dh.getDb().endTransaction();
@@ -138,5 +149,20 @@ public class ArchiveFetchTask extends ProgressTask {
 		default:
 			break;
 		}
+	}
+	
+	private String tyToType(String ty) {
+		switch (Integer.valueOf(ty)) {
+		case 0:
+			return "TEXT";
+		case 1:
+			return "SCREENSHOT";
+		case 2:
+			return "VIDEO";
+		case 3:
+			return "HYBRID";
+		default:
+			return "UNKNOWN";
+		}		
 	}
 }

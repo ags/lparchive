@@ -23,27 +23,26 @@ import android.view.MenuItem;
 public class ChapterPageActivity extends PageActivity {
 	public static final int MENU_PREVIOUS = 0;
 	public static final int MENU_NEXT = 1;
-	
+
 	private Cursor cursor;
 	private String lpUrl;
 	private long lpId;
 	private int position, positionDelta;
 	private DataHelper dh;
-	
+
 	/**
 	 * Creates an Intent to launch a ChapterPageActivity for a LP.
 	 * 
 	 * @param lpUrl
-	 *            The URL for the LP. eg.
-	 *            http://lparchive.org/Final-Fantasy-IX/
+	 *            The URL for the LP. eg. http://lparchive.org/Final-Fantasy-IX/
 	 * @param lpId
 	 *            The Let's Play ID in the DB.
 	 * @return The created intent.
 	 */
 	public static Intent newInstance(Context context, String lpUrl, long lpId) {
 		return newInstance(context, lpUrl, lpId, 0);
-    }
-	
+	}
+
 	/**
 	 * Creates an Intent to launch a ChapterPageActivity for a LP.
 	 * 
@@ -55,14 +54,15 @@ public class ChapterPageActivity extends PageActivity {
 	 *            Chapter number to view.
 	 * @return The created intent.
 	 */
-	public static Intent newInstance(Context context, String lpUrl, long lpId, int position) {
+	public static Intent newInstance(Context context, String lpUrl, long lpId,
+			int position) {
 		Intent i = new Intent(context, ChapterPageActivity.class);
-        i.putExtra("lpUrl", lpUrl);
-        i.putExtra("position", position);
-        i.putExtra("lpId", lpId);
-        return i;
-    }
-	
+		i.putExtra("lpUrl", lpUrl);
+		i.putExtra("position", position);
+		i.putExtra("lpId", lpId);
+		return i;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -74,34 +74,34 @@ public class ChapterPageActivity extends PageActivity {
 			lpUrl = extras.getString("lpUrl");
 			position = extras.getInt("position");
 			lpId = extras.getLong("lpId");
-			
+
 			dh = ((LPArchiveApplication) getApplicationContext())
 					.getDataHelper();
-			
+
 			cursor = dh.getChapters(lpId);
 
 			loadPage();
 		}
 	}
-	
+
 	/** Loads the current chapter into the WebView. */
 	protected void loadPage() {
 		// apply requested position change
 		position += positionDelta;
-		
+
 		// ensure position points to somewhere valid
 		if (cursor.moveToPosition(position)) {
 			long id = cursor.getLong(DataHelper.INDEX_ID);
 			Chapter c = dh.getChapter(id);
 			boolean isIntro = c.isIntro();
 			String pageUrl = (isIntro) ? lpUrl : lpUrl + c.getUrl();
-	
+
 			new LoadPageFetchTask(this, pageUrl, isIntro).execute();
 		} else {
 			Log.e("LPA", "error moving to position");
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -111,42 +111,45 @@ public class ChapterPageActivity extends PageActivity {
 		inflater.inflate(R.menu.options_menu_page_chapter, menu);
 		return true;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		// enable/disable the previous/next buttons depending on chapter
-		menu.getItem(MENU_PREVIOUS).setEnabled(position != 0);
-		menu.getItem(MENU_NEXT).setEnabled(cursor.getCount() - 1 != position);
+		if (cursor != null) {
+			menu.getItem(MENU_PREVIOUS).setEnabled(position != 0);
+			menu.getItem(MENU_NEXT).setEnabled(
+					cursor.getCount() - 1 != position);
+		}
 
 		return super.onPrepareOptionsMenu(menu);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-	    switch (item.getItemId()) {
-	    // reload current chapter
-	    case R.id.refresh_page:
-	    	loadPage();
-	    	return true;
-    	// load previous chapter
-	    case R.id.prev_chapter:
-	    	positionDelta = -1;
-	    	loadPage();
-	    	return true;
-    	// load next chapter
-	    case R.id.next_chapter:
-	    	positionDelta = 1;
-	    	loadPage();
-	    	return true;
-	    default:
-	        return super.onOptionsItemSelected(item);
-	    }
+		switch (item.getItemId()) {
+		// reload current chapter
+		case R.id.refresh_page:
+			loadPage();
+			return true;
+			// load previous chapter
+		case R.id.prev_chapter:
+			positionDelta = -1;
+			loadPage();
+			return true;
+			// load next chapter
+		case R.id.next_chapter:
+			positionDelta = 1;
+			loadPage();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	/** Fetches & loads a page into this activities WebView. */

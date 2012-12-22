@@ -1,14 +1,13 @@
 package org.ags.lparchive;
 
 import org.ags.lparchive.list.LPListActivity;
-import org.ags.lparchive.page.DonatePageActivity;
 import org.ags.lparchive.task.ArchiveFetchTask;
 
 import android.app.AlertDialog;
 import android.app.TabActivity;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
