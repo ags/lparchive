@@ -74,12 +74,12 @@ public class LPArchiveActivity extends TabActivity {
 				.setContent(intent);
 		tabHost.addTab(spec);
 		
-		intent = new Intent(this, DonatePageActivity.class);
-		spec = tabHost.newTabSpec("donate").setIndicator(
-				getString(R.string.tab_donate),
-				getResources().getDrawable(R.drawable.ic_tab_donate))
-				.setContent(intent);
-		tabHost.addTab(spec);
+//		intent = new Intent(this, DonatePageActivity.class);
+//		spec = tabHost.newTabSpec("donate").setIndicator(
+//				getString(R.string.tab_donate),
+//				getResources().getDrawable(R.drawable.ic_tab_donate))
+//				.setContent(intent);
+//		tabHost.addTab(spec);
 		
 		// focus on the first tab
 		tabHost.setCurrentTab(LATEST_TAB);
